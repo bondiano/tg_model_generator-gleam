@@ -41,7 +41,8 @@ defmodule TgApiScrapper do
     "RevenueWithdrawalState",
     "TransactionPartner",
     "BackgroundFill",
-    "BackgroundType"
+    "BackgroundType",
+    "InputProfilePhoto"
   ]
   @generic_discriminator_by_type %{
     "InlineQueryResult" => "type",
@@ -60,7 +61,8 @@ defmodule TgApiScrapper do
     "RevenueWithdrawalState" => "type",
     "TransactionPartner" => "type",
     "BackgroundFill" => "type",
-    "BackgroundType" => "type"
+    "BackgroundType" => "type",
+    "InputProfilePhoto" => "type"
   }
 
   @output_path Path.expand("./tg_api.generated.json", __DIR__)

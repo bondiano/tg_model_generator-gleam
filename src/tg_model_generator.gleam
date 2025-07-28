@@ -11,7 +11,7 @@ import simplifile
 
 const scrapped_file = "./tg_api.generated.json"
 
-const output_file = "../telega-gleam/src/telega/model.gleam"
+const output_file = "./model.gleam"
 
 pub type GenericType {
   GenericType(name: String, subtypes: List(String), discriminator: String)
