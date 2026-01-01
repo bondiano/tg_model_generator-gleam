@@ -631,6 +631,15 @@
             "bool"
           ],
           "name": "has_main_web_app"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the bot has forum topic mode enabled in private chats. Returned only in getMe.",
+          "type": [
+            "bool"
+          ],
+          "name": "has_topics_enabled"
         }
       ],
       "description": "This object represents a Telegram user or bot.",
@@ -700,6 +709,15 @@
             "bool"
           ],
           "name": "is_forum"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the chat is the direct messages chat of a channel",
+          "type": [
+            "bool"
+          ],
+          "name": "is_direct_messages"
         }
       ],
       "description": "This object represents a chat.",
@@ -769,6 +787,15 @@
             "bool"
           ],
           "name": "is_forum"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the chat is the direct messages chat of a channel",
+          "type": [
+            "bool"
+          ],
+          "name": "is_direct_messages"
         },
         {
           "optional": false,
@@ -853,6 +880,15 @@
             "Chat"
           ],
           "name": "personal_chat"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Information about the corresponding channel chat; for direct messages chats only",
+          "type": [
+            "Chat"
+          ],
+          "name": "parent_chat"
         },
         {
           "optional": true,
@@ -1117,6 +1153,33 @@
             "ChatLocation"
           ],
           "name": "location"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. For private chats, the rating of the user if any",
+          "type": [
+            "UserRating"
+          ],
+          "name": "rating"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews",
+          "type": [
+            "UniqueGiftColors"
+          ],
+          "name": "unique_gift_colors"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The number of Telegram Stars a general user have to pay to send a message to the chat",
+          "type": [
+            "int"
+          ],
+          "name": "paid_message_star_count"
         }
       ],
       "description": "This object contains full information about a chat.",
@@ -1136,11 +1199,20 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Unique identifier of a message thread to which the message belongs; for supergroups only",
+          "description": "Optional. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only",
           "type": [
             "int"
           ],
           "name": "message_thread_id"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Information about the direct messages chat topic that contains the message",
+          "type": [
+            "DirectMessagesTopic"
+          ],
+          "name": "direct_messages_topic"
         },
         {
           "optional": true,
@@ -1217,7 +1289,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. True, if the message is sent to a forum topic",
+          "description": "Optional. True, if the message is sent to a topic in a forum supergroup or a private chat with the bot",
           "type": [
             "bool"
           ],
@@ -1271,6 +1343,15 @@
         {
           "optional": true,
           "one_of": null,
+          "description": "Optional. Identifier of the specific checklist task that is being replied to",
+          "type": [
+            "int"
+          ],
+          "name": "reply_to_checklist_task_id"
+        },
+        {
+          "optional": true,
+          "one_of": null,
           "description": "Optional. Bot through which the message was sent",
           "type": [
             "User"
@@ -1303,6 +1384,15 @@
             "bool"
           ],
           "name": "is_from_offline"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.",
+          "type": [
+            "bool"
+          ],
+          "name": "is_paid_post"
         },
         {
           "optional": true,
@@ -1360,6 +1450,15 @@
             "LinkPreviewOptions"
           ],
           "name": "link_preview_options"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.",
+          "type": [
+            "SuggestedPostInfo"
+          ],
+          "name": "suggested_post_info"
         },
         {
           "optional": true,
@@ -1745,6 +1844,15 @@
         {
           "optional": true,
           "one_of": null,
+          "description": "Optional. Service message: upgrade of a gift was purchased after the gift was sent",
+          "type": [
+            "GiftInfo"
+          ],
+          "name": "gift_upgrade_sent"
+        },
+        {
+          "optional": true,
+          "one_of": null,
           "description": "Optional. The domain name of the website on which the user has logged in. More about Telegram Login »",
           "type": [
             "str"
@@ -1921,6 +2029,51 @@
             "PaidMessagePriceChanged"
           ],
           "name": "paid_message_price_changed"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Service message: a suggested post was approved",
+          "type": [
+            "SuggestedPostApproved"
+          ],
+          "name": "suggested_post_approved"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Service message: approval of a suggested post has failed",
+          "type": [
+            "SuggestedPostApprovalFailed"
+          ],
+          "name": "suggested_post_approval_failed"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Service message: a suggested post was declined",
+          "type": [
+            "SuggestedPostDeclined"
+          ],
+          "name": "suggested_post_declined"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Service message: payment for a suggested post was received",
+          "type": [
+            "SuggestedPostPaid"
+          ],
+          "name": "suggested_post_paid"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Service message: payment for a suggested post was refunded",
+          "type": [
+            "SuggestedPostRefunded"
+          ],
+          "name": "suggested_post_refunded"
         },
         {
           "optional": true,
@@ -2390,7 +2543,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account.",
+          "description": "Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.",
           "type": [
             "int",
             "str"
@@ -2444,6 +2597,15 @@
             "int"
           ],
           "name": "quote_position"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Identifier of the specific checklist task to be replied to",
+          "type": [
+            "int"
+          ],
+          "name": "checklist_task_id"
         }
       ],
       "description": "Describes reply parameters for the message that is being sent.",
@@ -3624,11 +3786,20 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. User that completed the task; omitted if the task wasn't completed",
+          "description": "Optional. User that completed the task; omitted if the task wasn't completed by a user",
           "type": [
             "User"
           ],
           "name": "completed_by_user"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Chat that completed the task; omitted if the task wasn't completed by a chat",
+          "type": [
+            "Chat"
+          ],
+          "name": "completed_by_chat"
         },
         {
           "optional": true,
@@ -3721,7 +3892,7 @@
           "name": "text"
         },
         {
-          "optional": false,
+          "optional": true,
           "one_of": null,
           "description": "Optional. Mode for parsing entities in the text. See formatting options for more details.",
           "type": [
@@ -3757,7 +3928,7 @@
           "name": "title"
         },
         {
-          "optional": false,
+          "optional": true,
           "one_of": null,
           "description": "Optional. Mode for parsing entities in the title. See formatting options for more details.",
           "type": [
@@ -4397,6 +4568,15 @@
             "str"
           ],
           "name": "icon_custom_emoji_id"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot",
+          "type": [
+            "bool"
+          ],
+          "name": "is_name_implicit"
         }
       ],
       "description": "This object represents a service message about a new forum topic created in the chat.",
@@ -4705,6 +4885,159 @@
       ],
       "description": "Describes a service message about a change in the price of direct messages sent to a channel chat.",
       "name": "DirectMessagePriceChanged"
+    },
+    {
+      "params": [
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.",
+          "type": [
+            "Message"
+          ],
+          "name": "suggested_post_message"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Amount paid for the post",
+          "type": [
+            "SuggestedPostPrice"
+          ],
+          "name": "price"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Date when the post will be published",
+          "type": [
+            "int"
+          ],
+          "name": "send_date"
+        }
+      ],
+      "description": "Describes a service message about the approval of a suggested post.",
+      "name": "SuggestedPostApproved"
+    },
+    {
+      "params": [
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Message containing the suggested post whose approval has failed. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.",
+          "type": [
+            "Message"
+          ],
+          "name": "suggested_post_message"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Expected price of the post",
+          "type": [
+            "SuggestedPostPrice"
+          ],
+          "name": "price"
+        }
+      ],
+      "description": "Describes a service message about the failed approval of a suggested post. Currently, only caused by insufficient user funds at the time of approval.",
+      "name": "SuggestedPostApprovalFailed"
+    },
+    {
+      "params": [
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.",
+          "type": [
+            "Message"
+          ],
+          "name": "suggested_post_message"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Comment with which the post was declined",
+          "type": [
+            "str"
+          ],
+          "name": "comment"
+        }
+      ],
+      "description": "Describes a service message about the rejection of a suggested post.",
+      "name": "SuggestedPostDeclined"
+    },
+    {
+      "params": [
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.",
+          "type": [
+            "Message"
+          ],
+          "name": "suggested_post_message"
+        },
+        {
+          "optional": false,
+          "one_of": [
+            "XTR",
+            "TON"
+          ],
+          "description": "Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins",
+          "type": [
+            "str"
+          ],
+          "name": "currency"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The amount of the currency that was received by the channel in nanotoncoins; for payments in toncoins only",
+          "type": [
+            "int"
+          ],
+          "name": "amount"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The amount of Telegram Stars that was received by the channel; for payments in Telegram Stars only",
+          "type": [
+            "StarAmount"
+          ],
+          "name": "star_amount"
+        }
+      ],
+      "description": "Describes a service message about a successful payment for a suggested post.",
+      "name": "SuggestedPostPaid"
+    },
+    {
+      "params": [
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.",
+          "type": [
+            "Message"
+          ],
+          "name": "suggested_post_message"
+        },
+        {
+          "optional": false,
+          "one_of": [
+            "post_deleted",
+            "payment_refunded"
+          ],
+          "description": "Reason for the refund. Currently, one of “post_deleted” if the post was deleted within 24 hours of being posted or removed from scheduled messages without being posted, or “payment_refunded” if the payer refunded their payment.",
+          "type": [
+            "str"
+          ],
+          "name": "reason"
+        }
+      ],
+      "description": "Describes a service message about a payment refund for a suggested post.",
+      "name": "SuggestedPostRefunded"
     },
     {
       "params": [
@@ -5023,6 +5356,118 @@
       ],
       "description": "Describes the options used for link preview generation.",
       "name": "LinkPreviewOptions"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": [
+            "XTR",
+            "TON"
+          ],
+          "description": "Currency in which the post will be paid. Currently, must be one of “XTR” for Telegram Stars or “TON” for toncoins",
+          "type": [
+            "str"
+          ],
+          "name": "currency"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "The amount of the currency that will be paid for the post in the smallest units of the currency, i.e. Telegram Stars or nanotoncoins. Currently, price in Telegram Stars must be between 5 and 100000, and price in nanotoncoins must be between 10000000 and 10000000000000.",
+          "type": [
+            "int"
+          ],
+          "name": "amount"
+        }
+      ],
+      "description": "Describes the price of a suggested post.",
+      "name": "SuggestedPostPrice"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": [
+            "pending",
+            "approved",
+            "declined"
+          ],
+          "description": "State of the suggested post. Currently, it can be one of “pending”, “approved”, “declined”.",
+          "type": [
+            "str"
+          ],
+          "name": "state"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Proposed price of the post. If the field is omitted, then the post is unpaid.",
+          "type": [
+            "SuggestedPostPrice"
+          ],
+          "name": "price"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Proposed send date of the post. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user or administrator who approves it.",
+          "type": [
+            "int"
+          ],
+          "name": "send_date"
+        }
+      ],
+      "description": "Contains information about a suggested post.",
+      "name": "SuggestedPostInfo"
+    },
+    {
+      "params": [
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Proposed price for the post. If the field is omitted, then the post is unpaid.",
+          "type": [
+            "SuggestedPostPrice"
+          ],
+          "name": "price"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Proposed send date of the post. If specified, then the date must be between 300 second and 2678400 seconds (30 days) in the future. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user who approves it.",
+          "type": [
+            "int"
+          ],
+          "name": "send_date"
+        }
+      ],
+      "description": "Contains parameters of a post that is being suggested by the bot.",
+      "name": "SuggestedPostParameters"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Unique identifier of the topic. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.",
+          "type": [
+            "int"
+          ],
+          "name": "topic_id"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Information about the user that created the topic. Currently, it is always present",
+          "type": [
+            "User"
+          ],
+          "name": "user"
+        }
+      ],
+      "description": "Describes a topic of a direct messages chat.",
+      "name": "DirectMessagesTopic"
     },
     {
       "params": [
@@ -5530,7 +5975,7 @@
         {
           "optional": true,
           "one_of": [],
-          "description": "Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent on behalf of a Telegram Business account.",
+          "description": "Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.",
           "type": [
             "str"
           ],
@@ -5539,7 +5984,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.\n\nThis offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent on behalf of a Telegram Business account.",
+          "description": "Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.\n\nThis offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a Telegram Business account.",
           "type": [
             "str"
           ],
@@ -5548,7 +5993,7 @@
         {
           "optional": true,
           "one_of": [],
-          "description": "Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent on behalf of a Telegram Business account.",
+          "description": "Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.",
           "type": [
             "SwitchInlineQueryChosenChat"
           ],
@@ -6078,6 +6523,15 @@
             "bool"
           ],
           "name": "can_manage_topics"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only",
+          "type": [
+            "bool"
+          ],
+          "name": "can_manage_direct_messages"
         }
       ],
       "description": "Represents the rights of an administrator in a chat.",
@@ -6366,6 +6820,15 @@
             "bool"
           ],
           "name": "can_manage_topics"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only",
+          "type": [
+            "bool"
+          ],
+          "name": "can_manage_direct_messages"
         },
         {
           "optional": true,
@@ -6970,6 +7433,48 @@
       ],
       "description": "Describes the opening hours of a business.",
       "name": "BusinessOpeningHours"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Current level of the user, indicating their reliability when purchasing digital goods and services. A higher level suggests a more trustworthy customer; a negative level is likely reason for concern.",
+          "type": [
+            "int"
+          ],
+          "name": "level"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Numerical value of the user's rating; the higher the rating, the better",
+          "type": [
+            "int"
+          ],
+          "name": "rating"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "The rating value required to get the current level",
+          "type": [
+            "int"
+          ],
+          "name": "current_level_rating"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The rating value required to get to the next level; omitted if the maximum level was reached",
+          "type": [
+            "int"
+          ],
+          "name": "next_level_rating"
+        }
+      ],
+      "description": "This object describes the rating of a user based on their Telegram Star spendings.",
+      "name": "UserRating"
     },
     {
       "params": [
@@ -7581,10 +8086,52 @@
             "str"
           ],
           "name": "icon_custom_emoji_id"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot",
+          "type": [
+            "bool"
+          ],
+          "name": "is_name_implicit"
         }
       ],
       "description": "This object represents a forum topic.",
       "name": "ForumTopic"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Center color of the background in RGB format",
+          "type": [
+            "int"
+          ],
+          "name": "center_color"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Edge color of the background in RGB format",
+          "type": [
+            "int"
+          ],
+          "name": "edge_color"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Text color of the background in RGB format",
+          "type": [
+            "int"
+          ],
+          "name": "text_color"
+        }
+      ],
+      "description": "This object describes the background of a gift.",
+      "name": "GiftBackground"
     },
     {
       "params": [
@@ -7627,7 +8174,25 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. The total number of the gifts of this type that can be sent; for limited gifts only",
+          "description": "Optional. True, if the gift can only be purchased by Telegram Premium subscribers",
+          "type": [
+            "bool"
+          ],
+          "name": "is_premium"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the gift can be used (after being upgraded) to customize a user's appearance",
+          "type": [
+            "bool"
+          ],
+          "name": "has_colors"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The total number of gifts of this type that can be sent by all users; for limited gifts only",
           "type": [
             "int"
           ],
@@ -7636,11 +8201,56 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. The number of remaining gifts of this type that can be sent; for limited gifts only",
+          "description": "Optional. The number of remaining gifts of this type that can be sent by all users; for limited gifts only",
           "type": [
             "int"
           ],
           "name": "remaining_count"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The total number of gifts of this type that can be sent by the bot; for limited gifts only",
+          "type": [
+            "int"
+          ],
+          "name": "personal_total_count"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The number of remaining gifts of this type that can be sent by the bot; for limited gifts only",
+          "type": [
+            "int"
+          ],
+          "name": "personal_remaining_count"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Background of the gift",
+          "type": [
+            "GiftBackground"
+          ],
+          "name": "background"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The total number of different unique gifts that can be obtained by upgrading the gift",
+          "type": [
+            "int"
+          ],
+          "name": "unique_gift_variant_count"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Information about the chat that published the gift",
+          "type": [
+            "Chat"
+          ],
+          "name": "publisher_chat"
         }
       ],
       "description": "This object represents a gift that can be sent by the bot.",
@@ -7810,6 +8420,81 @@
         {
           "optional": false,
           "one_of": null,
+          "description": "Custom emoji identifier of the unique gift's model",
+          "type": [
+            "str"
+          ],
+          "name": "model_custom_emoji_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Custom emoji identifier of the unique gift's symbol",
+          "type": [
+            "str"
+          ],
+          "name": "symbol_custom_emoji_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Main color used in light themes; RGB format",
+          "type": [
+            "int"
+          ],
+          "name": "light_theme_main_color"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "List of 1-3 additional colors used in light themes; RGB format",
+          "type": [
+            "array",
+            [
+              "int"
+            ]
+          ],
+          "name": "light_theme_other_colors"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Main color used in dark themes; RGB format",
+          "type": [
+            "int"
+          ],
+          "name": "dark_theme_main_color"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "List of 1-3 additional colors used in dark themes; RGB format",
+          "type": [
+            "array",
+            [
+              "int"
+            ]
+          ],
+          "name": "dark_theme_other_colors"
+        }
+      ],
+      "description": "This object contains information about the color scheme for a user's name, message replies and link previews based on a unique gift.",
+      "name": "UniqueGiftColors"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Identifier of the regular gift from which the gift was upgraded",
+          "type": [
+            "str"
+          ],
+          "name": "gift_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
           "description": "Human-readable name of the regular gift from which this unique gift was upgraded",
           "type": [
             "str"
@@ -7860,6 +8545,42 @@
             "UniqueGiftBackdrop"
           ],
           "name": "backdrop"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers",
+          "type": [
+            "bool"
+          ],
+          "name": "is_premium"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the gift is assigned from the TON blockchain and can't be resold or transferred in Telegram",
+          "type": [
+            "bool"
+          ],
+          "name": "is_from_blockchain"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The color scheme that can be used by the gift's owner for the chat's name, replies to messages and link previews; for business account gifts and gifts that are currently on sale only",
+          "type": [
+            "UniqueGiftColors"
+          ],
+          "name": "colors"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Information about the chat that published the gift",
+          "type": [
+            "Chat"
+          ],
+          "name": "publisher_chat"
         }
       ],
       "description": "This object describes a unique gift that was upgraded from a regular gift.",
@@ -7897,11 +8618,20 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Number of Telegram Stars that were prepaid by the sender for the ability to upgrade the gift",
+          "description": "Optional. Number of Telegram Stars that were prepaid for the ability to upgrade the gift",
           "type": [
             "int"
           ],
           "name": "prepaid_upgrade_star_count"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the gift's upgrade was purchased after the gift was sent",
+          "type": [
+            "bool"
+          ],
+          "name": "is_upgrade_separate"
         },
         {
           "optional": true,
@@ -7941,6 +8671,15 @@
             "bool"
           ],
           "name": "is_private"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift",
+          "type": [
+            "int"
+          ],
+          "name": "unique_gift_number"
         }
       ],
       "description": "Describes a service message about a regular gift that was sent or received.",
@@ -7960,7 +8699,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, or “resale” for gifts bought from other users",
+          "description": "Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, “resale” for gifts bought from other users, “gifted_upgrade” for upgrades purchased after the gift was sent, or “offer” for gifts bought or sold through gift purchase offers",
           "type": [
             "str"
           ],
@@ -7968,12 +8707,24 @@
         },
         {
           "optional": true,
+          "one_of": [
+            "XTR",
+            "TON"
+          ],
+          "description": "Optional. For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins.",
+          "type": [
+            "str"
+          ],
+          "name": "last_resale_currency"
+        },
+        {
+          "optional": true,
           "one_of": null,
-          "description": "Optional. For gifts bought from other users, the price paid for the gift",
+          "description": "Optional. For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanotoncoins",
           "type": [
             "int"
           ],
-          "name": "last_resale_star_count"
+          "name": "last_resale_amount"
         },
         {
           "optional": true,
@@ -8113,7 +8864,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars",
+          "description": "Optional. Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars; for gifts received on behalf of business accounts only",
           "type": [
             "int"
           ],
@@ -8122,11 +8873,29 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Number of Telegram Stars that were paid by the sender for the ability to upgrade the gift",
+          "description": "Optional. Number of Telegram Stars that were paid for the ability to upgrade the gift",
           "type": [
             "int"
           ],
           "name": "prepaid_upgrade_star_count"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only",
+          "type": [
+            "bool"
+          ],
+          "name": "is_upgrade_separate"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift",
+          "type": [
+            "int"
+          ],
+          "name": "unique_gift_number"
         }
       ],
       "description": "This object describes a gift received and owned by a user or a chat. Currently, it can be one of",
@@ -8239,7 +9008,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars",
+          "description": "Optional. Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars; for gifts received on behalf of business accounts only",
           "type": [
             "int"
           ],
@@ -8248,11 +9017,29 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Number of Telegram Stars that were paid by the sender for the ability to upgrade the gift",
+          "description": "Optional. Number of Telegram Stars that were paid for the ability to upgrade the gift",
           "type": [
             "int"
           ],
           "name": "prepaid_upgrade_star_count"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only",
+          "type": [
+            "bool"
+          ],
+          "name": "is_upgrade_separate"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift",
+          "type": [
+            "int"
+          ],
+          "name": "unique_gift_number"
         }
       ],
       "description": "Describes a regular gift owned by a user or a chat.",
@@ -8418,6 +9205,15 @@
             "bool"
           ],
           "name": "premium_subscription"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "True, if transfers of unique gifts from channels are accepted",
+          "type": [
+            "bool"
+          ],
+          "name": "gifts_from_channels"
         }
       ],
       "description": "This object describes the types of gifts that can be gifted to a user or a chat.",
@@ -8545,7 +9341,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)",
+          "description": "Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.",
           "type": [
             "int",
             "str"
@@ -8570,7 +9366,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)",
+          "description": "Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.",
           "type": [
             "int",
             "str"
@@ -8595,7 +9391,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)",
+          "description": "Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.",
           "type": [
             "int",
             "str"

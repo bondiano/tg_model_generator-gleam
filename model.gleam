@@ -288,6 +288,8 @@ pub type User {
     can_connect_to_business: Option(Bool),
     /// Optional. True, if the bot has a main Web App. Returned only in getMe.
     has_main_web_app: Option(Bool),
+    /// Optional. True, if the bot has forum topic mode enabled in private chats. Returned only in getMe.
+    has_topics_enabled: Option(Bool),
   )
 }
 
@@ -308,6 +310,8 @@ pub type Chat {
     last_name: Option(String),
     /// Optional. True, if the supergroup chat is a forum (has topics enabled)
     is_forum: Option(Bool),
+    /// Optional. True, if the chat is the direct messages chat of a channel
+    is_direct_messages: Option(Bool),
   )
 }
 
@@ -328,6 +332,8 @@ pub type ChatFullInfo {
     last_name: Option(String),
     /// Optional. True, if the supergroup chat is a forum (has topics enabled)
     is_forum: Option(Bool),
+    /// Optional. True, if the chat is the direct messages chat of a channel
+    is_direct_messages: Option(Bool),
     /// Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
     accent_color_id: Int,
     /// The maximum number of reactions that can be set on a message in the chat
@@ -346,6 +352,8 @@ pub type ChatFullInfo {
     business_opening_hours: Option(BusinessOpeningHours),
     /// Optional. For private chats, the personal channel of the user
     personal_chat: Option(Chat),
+    /// Optional. Information about the corresponding channel chat; for direct messages chats only
+    parent_chat: Option(Chat),
     /// Optional. List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
     available_reactions: Option(List(ReactionType)),
     /// Optional. Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background
@@ -404,6 +412,12 @@ pub type ChatFullInfo {
     linked_chat_id: Option(Int),
     /// Optional. For supergroups, the location to which the supergroup is connected
     location: Option(ChatLocation),
+    /// Optional. For private chats, the rating of the user if any
+    rating: Option(UserRating),
+    /// Optional. The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
+    unique_gift_colors: Option(UniqueGiftColors),
+    /// Optional. The number of Telegram Stars a general user have to pay to send a message to the chat
+    paid_message_star_count: Option(Int),
   )
 }
 
@@ -412,8 +426,10 @@ pub type Message {
   Message(
     /// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
     message_id: Int,
-    /// Optional. Unique identifier of a message thread to which the message belongs; for supergroups only
+    /// Optional. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
     message_thread_id: Option(Int),
+    /// Optional. Information about the direct messages chat topic that contains the message
+    direct_messages_topic: Option(DirectMessagesTopic),
     /// Optional. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
     from: Option(User),
     /// Optional. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
@@ -430,7 +446,7 @@ pub type Message {
     chat: Chat,
     /// Optional. Information about the original message for forwarded messages
     forward_origin: Option(MessageOrigin),
-    /// Optional. True, if the message is sent to a forum topic
+    /// Optional. True, if the message is sent to a topic in a forum supergroup or a private chat with the bot
     is_topic_message: Option(Bool),
     /// Optional. True, if the message is a channel post that was automatically forwarded to the connected discussion group
     is_automatic_forward: Option(Bool),
@@ -442,6 +458,8 @@ pub type Message {
     quote: Option(TextQuote),
     /// Optional. For replies to a story, the original story
     reply_to_story: Option(Story),
+    /// Optional. Identifier of the specific checklist task that is being replied to
+    reply_to_checklist_task_id: Option(Int),
     /// Optional. Bot through which the message was sent
     via_bot: Option(User),
     /// Optional. Date the message was last edited in Unix time
@@ -450,6 +468,8 @@ pub type Message {
     has_protected_content: Option(Bool),
     /// Optional. True, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     is_from_offline: Option(Bool),
+    /// Optional. True, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
+    is_paid_post: Option(Bool),
     /// Optional. The unique identifier of a media message group this message belongs to
     media_group_id: Option(String),
     /// Optional. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
@@ -462,6 +482,8 @@ pub type Message {
     entities: Option(List(MessageEntity)),
     /// Optional. Options used for link preview generation for the message, if it is a text message and link preview options were changed
     link_preview_options: Option(LinkPreviewOptions),
+    /// Optional. Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited.
+    suggested_post_info: Option(SuggestedPostInfo),
     /// Optional. Unique identifier of the message effect added to the message
     effect_id: Option(String),
     /// Optional. Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
@@ -544,6 +566,8 @@ pub type Message {
     gift: Option(GiftInfo),
     /// Optional. Service message: a unique gift was sent or received
     unique_gift: Option(UniqueGiftInfo),
+    /// Optional. Service message: upgrade of a gift was purchased after the gift was sent
+    gift_upgrade_sent: Option(GiftInfo),
     /// Optional. The domain name of the website on which the user has logged in. More about Telegram Login »
     connected_website: Option(String),
     /// Optional. Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
@@ -584,6 +608,16 @@ pub type Message {
     giveaway_completed: Option(GiveawayCompleted),
     /// Optional. Service message: the price for paid messages has changed in the chat
     paid_message_price_changed: Option(PaidMessagePriceChanged),
+    /// Optional. Service message: a suggested post was approved
+    suggested_post_approved: Option(SuggestedPostApproved),
+    /// Optional. Service message: approval of a suggested post has failed
+    suggested_post_approval_failed: Option(SuggestedPostApprovalFailed),
+    /// Optional. Service message: a suggested post was declined
+    suggested_post_declined: Option(SuggestedPostDeclined),
+    /// Optional. Service message: payment for a suggested post was received
+    suggested_post_paid: Option(SuggestedPostPaid),
+    /// Optional. Service message: payment for a suggested post was refunded
+    suggested_post_refunded: Option(SuggestedPostRefunded),
     /// Optional. Service message: video chat scheduled
     video_chat_scheduled: Option(VideoChatScheduled),
     /// Optional. Service message: video chat started
@@ -714,7 +748,7 @@ pub type ReplyParameters {
   ReplyParameters(
     /// Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified
     message_id: Int,
-    /// Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account.
+    /// Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
     chat_id: Option(IntOrString),
     /// Optional. Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account.
     allow_sending_without_reply: Option(Bool),
@@ -726,6 +760,8 @@ pub type ReplyParameters {
     quote_entities: Option(List(MessageEntity)),
     /// Optional. Position of the quote in the original message in UTF-16 code units
     quote_position: Option(Int),
+    /// Optional. Identifier of the specific checklist task to be replied to
+    checklist_task_id: Option(Int),
   )
 }
 
@@ -1088,8 +1124,10 @@ pub type ChecklistTask {
     text: String,
     /// Optional. Special entities that appear in the task text
     text_entities: Option(List(MessageEntity)),
-    /// Optional. User that completed the task; omitted if the task wasn't completed
+    /// Optional. User that completed the task; omitted if the task wasn't completed by a user
     completed_by_user: Option(User),
+    /// Optional. Chat that completed the task; omitted if the task wasn't completed by a chat
+    completed_by_chat: Option(Chat),
     /// Optional. Point in time (Unix timestamp) when the task was completed; 0 if the task wasn't completed
     completion_date: Option(Int),
   )
@@ -1119,7 +1157,7 @@ pub type InputChecklistTask {
     /// Text of the task; 1-100 characters after entities parsing
     text: String,
     /// Optional. Mode for parsing entities in the text. See formatting options for more details.
-    parse_mode: String,
+    parse_mode: Option(String),
     /// Optional. List of special entities that appear in the text, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are allowed.
     text_entities: Option(List(MessageEntity)),
   )
@@ -1131,7 +1169,7 @@ pub type InputChecklist {
     /// Title of the checklist; 1-255 characters after entities parsing
     title: String,
     /// Optional. Mode for parsing entities in the title. See formatting options for more details.
-    parse_mode: String,
+    parse_mode: Option(String),
     /// Optional. List of special entities that appear in the title, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are allowed.
     title_entities: Option(List(MessageEntity)),
     /// List of 1-30 tasks in the checklist
@@ -1348,6 +1386,8 @@ pub type ForumTopicCreated {
     icon_color: Int,
     /// Optional. Unique identifier of the custom emoji shown as the topic icon
     icon_custom_emoji_id: Option(String),
+    /// Optional. True, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot
+    is_name_implicit: Option(Bool),
   )
 }
 
@@ -1477,6 +1517,62 @@ pub type DirectMessagePriceChanged {
   )
 }
 
+/// **Official reference:** Describes a service message about the approval of a suggested post.
+pub type SuggestedPostApproved {
+  SuggestedPostApproved(
+    /// Optional. Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.
+    suggested_post_message: Option(Message),
+    /// Optional. Amount paid for the post
+    price: Option(SuggestedPostPrice),
+    /// Date when the post will be published
+    send_date: Int,
+  )
+}
+
+/// **Official reference:** Describes a service message about the failed approval of a suggested post. Currently, only caused by insufficient user funds at the time of approval.
+pub type SuggestedPostApprovalFailed {
+  SuggestedPostApprovalFailed(
+    /// Optional. Message containing the suggested post whose approval has failed. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.
+    suggested_post_message: Option(Message),
+    /// Expected price of the post
+    price: SuggestedPostPrice,
+  )
+}
+
+/// **Official reference:** Describes a service message about the rejection of a suggested post.
+pub type SuggestedPostDeclined {
+  SuggestedPostDeclined(
+    /// Optional. Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.
+    suggested_post_message: Option(Message),
+    /// Optional. Comment with which the post was declined
+    comment: Option(String),
+  )
+}
+
+/// **Official reference:** Describes a service message about a successful payment for a suggested post.
+pub type SuggestedPostPaid {
+  SuggestedPostPaid(
+    /// Optional. Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.
+    suggested_post_message: Option(Message),
+    /// Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins
+    currency: String,
+    /// Optional. The amount of the currency that was received by the channel in nanotoncoins; for payments in toncoins only
+    amount: Option(Int),
+    /// Optional. The amount of Telegram Stars that was received by the channel; for payments in Telegram Stars only
+    star_amount: Option(StarAmount),
+  )
+}
+
+/// **Official reference:** Describes a service message about a payment refund for a suggested post.
+pub type SuggestedPostRefunded {
+  SuggestedPostRefunded(
+    /// Optional. Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.
+    suggested_post_message: Option(Message),
+    /// Reason for the refund. Currently, one of “post_deleted” if the post was deleted within 24 hours of being posted or removed from scheduled messages without being posted, or “payment_refunded” if the payer refunded their payment.
+    reason: String,
+  )
+}
+
 /// **Official reference:** This object represents a service message about the creation of a scheduled giveaway.
 pub type GiveawayCreated {
   GiveawayCreated(
@@ -1566,6 +1662,48 @@ pub type LinkPreviewOptions {
     prefer_large_media: Option(Bool),
     /// Optional. True, if the link preview must be shown above the message text; otherwise, the link preview will be shown below the message text
     show_above_text: Option(Bool),
+  )
+}
+
+/// **Official reference:** Describes the price of a suggested post.
+pub type SuggestedPostPrice {
+  SuggestedPostPrice(
+    /// Currency in which the post will be paid. Currently, must be one of “XTR” for Telegram Stars or “TON” for toncoins
+    currency: String,
+    /// The amount of the currency that will be paid for the post in the smallest units of the currency, i.e. Telegram Stars or nanotoncoins. Currently, price in Telegram Stars must be between 5 and 100000, and price in nanotoncoins must be between 10000000 and 10000000000000.
+    amount: Int,
+  )
+}
+
+/// **Official reference:** Contains information about a suggested post.
+pub type SuggestedPostInfo {
+  SuggestedPostInfo(
+    /// State of the suggested post. Currently, it can be one of “pending”, “approved”, “declined”.
+    state: String,
+    /// Optional. Proposed price of the post. If the field is omitted, then the post is unpaid.
+    price: Option(SuggestedPostPrice),
+    /// Optional. Proposed send date of the post. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user or administrator who approves it.
+    send_date: Option(Int),
+  )
+}
+
+/// **Official reference:** Contains parameters of a post that is being suggested by the bot.
+pub type SuggestedPostParameters {
+  SuggestedPostParameters(
+    /// Optional. Proposed price for the post. If the field is omitted, then the post is unpaid.
+    price: Option(SuggestedPostPrice),
+    /// Optional. Proposed send date of the post. If specified, then the date must be between 300 second and 2678400 seconds (30 days) in the future. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user who approves it.
+    send_date: Option(Int),
+  )
+}
+
+/// **Official reference:** Describes a topic of a direct messages chat.
+pub type DirectMessagesTopic {
+  DirectMessagesTopic(
+    /// Unique identifier of the topic. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+    topic_id: Int,
+    /// Optional. Information about the user that created the topic. Currently, it is always present
+    user: Option(User),
   )
 }
 
@@ -1730,13 +1868,13 @@ pub type InlineKeyboardButton {
     web_app: Option(WebAppInfo),
     /// Optional. An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget.
     login_url: Option(LoginUrl),
-    /// Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent on behalf of a Telegram Business account.
+    /// Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
     switch_inline_query: Option(String),
     /// Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.
     ///
-    /// This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent on behalf of a Telegram Business account.
+    /// This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
     switch_inline_query_current_chat: Option(String),
-    /// Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent on behalf of a Telegram Business account.
+    /// Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
     switch_inline_query_chosen_chat: Option(SwitchInlineQueryChosenChat),
     /// Optional. Description of the button that copies the specified text to the clipboard.
     copy_text: Option(CopyTextButton),
@@ -1898,6 +2036,8 @@ pub type ChatAdministratorRights {
     can_pin_messages: Option(Bool),
     /// Optional. True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
     can_manage_topics: Option(Bool),
+    /// Optional. True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
+    can_manage_direct_messages: Option(Bool),
   )
 }
 
@@ -1976,6 +2116,8 @@ pub type ChatMemberAdministrator {
     can_pin_messages: Option(Bool),
     /// Optional. True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
     can_manage_topics: Option(Bool),
+    /// Optional. True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
+    can_manage_direct_messages: Option(Bool),
     /// Optional. Custom title for this user
     custom_title: Option(String),
   )
@@ -2160,6 +2302,20 @@ pub type BusinessOpeningHours {
     time_zone_name: String,
     /// List of time intervals describing business opening hours
     opening_hours: List(BusinessOpeningHoursInterval),
+  )
+}
+
+/// **Official reference:** This object describes the rating of a user based on their Telegram Star spendings.
+pub type UserRating {
+  UserRating(
+    /// Current level of the user, indicating their reliability when purchasing digital goods and services. A higher level suggests a more trustworthy customer; a negative level is likely reason for concern.
+    level: Int,
+    /// Numerical value of the user's rating; the higher the rating, the better
+    rating: Int,
+    /// The rating value required to get the current level
+    current_level_rating: Int,
+    /// Optional. The rating value required to get to the next level; omitted if the maximum level was reached
+    next_level_rating: Option(Int),
   )
 }
 
@@ -2374,6 +2530,20 @@ pub type ForumTopic {
     icon_color: Int,
     /// Optional. Unique identifier of the custom emoji shown as the topic icon
     icon_custom_emoji_id: Option(String),
+    /// Optional. True, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot
+    is_name_implicit: Option(Bool),
+  )
+}
+
+/// **Official reference:** This object describes the background of a gift.
+pub type GiftBackground {
+  GiftBackground(
+    /// Center color of the background in RGB format
+    center_color: Int,
+    /// Edge color of the background in RGB format
+    edge_color: Int,
+    /// Text color of the background in RGB format
+    text_color: Int,
   )
 }
 
@@ -2388,10 +2558,24 @@ pub type Gift {
     star_count: Int,
     /// Optional. The number of Telegram Stars that must be paid to upgrade the gift to a unique one
     upgrade_star_count: Option(Int),
-    /// Optional. The total number of the gifts of this type that can be sent; for limited gifts only
+    /// Optional. True, if the gift can only be purchased by Telegram Premium subscribers
+    is_premium: Option(Bool),
+    /// Optional. True, if the gift can be used (after being upgraded) to customize a user's appearance
+    has_colors: Option(Bool),
+    /// Optional. The total number of gifts of this type that can be sent by all users; for limited gifts only
     total_count: Option(Int),
-    /// Optional. The number of remaining gifts of this type that can be sent; for limited gifts only
+    /// Optional. The number of remaining gifts of this type that can be sent by all users; for limited gifts only
     remaining_count: Option(Int),
+    /// Optional. The total number of gifts of this type that can be sent by the bot; for limited gifts only
+    personal_total_count: Option(Int),
+    /// Optional. The number of remaining gifts of this type that can be sent by the bot; for limited gifts only
+    personal_remaining_count: Option(Int),
+    /// Optional. Background of the gift
+    background: Option(GiftBackground),
+    /// Optional. The total number of different unique gifts that can be obtained by upgrading the gift
+    unique_gift_variant_count: Option(Int),
+    /// Optional. Information about the chat that published the gift
+    publisher_chat: Option(Chat),
   )
 }
 
@@ -2453,9 +2637,29 @@ pub type UniqueGiftBackdrop {
   )
 }
 
+/// **Official reference:** This object contains information about the color scheme for a user's name, message replies and link previews based on a unique gift.
+pub type UniqueGiftColors {
+  UniqueGiftColors(
+    /// Custom emoji identifier of the unique gift's model
+    model_custom_emoji_id: String,
+    /// Custom emoji identifier of the unique gift's symbol
+    symbol_custom_emoji_id: String,
+    /// Main color used in light themes; RGB format
+    light_theme_main_color: Int,
+    /// List of 1-3 additional colors used in light themes; RGB format
+    light_theme_other_colors: List(Int),
+    /// Main color used in dark themes; RGB format
+    dark_theme_main_color: Int,
+    /// List of 1-3 additional colors used in dark themes; RGB format
+    dark_theme_other_colors: List(Int),
+  )
+}
+
 /// **Official reference:** This object describes a unique gift that was upgraded from a regular gift.
 pub type UniqueGift {
   UniqueGift(
+    /// Identifier of the regular gift from which the gift was upgraded
+    gift_id: String,
     /// Human-readable name of the regular gift from which this unique gift was upgraded
     base_name: String,
     /// Unique name of the gift. This name can be used in https://t.me/nft/... links and story areas
@@ -2468,6 +2672,14 @@ pub type UniqueGift {
     symbol: UniqueGiftSymbol,
     /// Backdrop of the gift
     backdrop: UniqueGiftBackdrop,
+    /// Optional. True, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers
+    is_premium: Option(Bool),
+    /// Optional. True, if the gift is assigned from the TON blockchain and can't be resold or transferred in Telegram
+    is_from_blockchain: Option(Bool),
+    /// Optional. The color scheme that can be used by the gift's owner for the chat's name, replies to messages and link previews; for business account gifts and gifts that are currently on sale only
+    colors: Option(UniqueGiftColors),
+    /// Optional. Information about the chat that published the gift
+    publisher_chat: Option(Chat),
   )
 }
 
@@ -2480,8 +2692,10 @@ pub type GiftInfo {
     owned_gift_id: Option(String),
     /// Optional. Number of Telegram Stars that can be claimed by the receiver by converting the gift; omitted if conversion to Telegram Stars is impossible
     convert_star_count: Option(Int),
-    /// Optional. Number of Telegram Stars that were prepaid by the sender for the ability to upgrade the gift
+    /// Optional. Number of Telegram Stars that were prepaid for the ability to upgrade the gift
     prepaid_upgrade_star_count: Option(Int),
+    /// Optional. True, if the gift's upgrade was purchased after the gift was sent
+    is_upgrade_separate: Option(Bool),
     /// Optional. True, if the gift can be upgraded to a unique gift
     can_be_upgraded: Option(Bool),
     /// Optional. Text of the message that was added to the gift
@@ -2490,6 +2704,8 @@ pub type GiftInfo {
     entities: Option(List(MessageEntity)),
     /// Optional. True, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them
     is_private: Option(Bool),
+    /// Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift
+    unique_gift_number: Option(Int),
   )
 }
 
@@ -2498,10 +2714,12 @@ pub type UniqueGiftInfo {
   UniqueGiftInfo(
     /// Information about the gift
     gift: UniqueGift,
-    /// Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, or “resale” for gifts bought from other users
+    /// Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, “resale” for gifts bought from other users, “gifted_upgrade” for upgrades purchased after the gift was sent, or “offer” for gifts bought or sold through gift purchase offers
     origin: String,
-    /// Optional. For gifts bought from other users, the price paid for the gift
-    last_resale_star_count: Option(Int),
+    /// Optional. For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins.
+    last_resale_currency: Option(String),
+    /// Optional. For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanotoncoins
+    last_resale_amount: Option(Int),
     /// Optional. Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts
     owned_gift_id: Option(String),
     /// Optional. Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift
@@ -2536,10 +2754,14 @@ pub type OwnedGift {
     can_be_upgraded: Option(Bool),
     /// Optional. True, if the gift was refunded and isn't available anymore
     was_refunded: Option(Bool),
-    /// Optional. Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars
+    /// Optional. Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars; for gifts received on behalf of business accounts only
     convert_star_count: Option(Int),
-    /// Optional. Number of Telegram Stars that were paid by the sender for the ability to upgrade the gift
+    /// Optional. Number of Telegram Stars that were paid for the ability to upgrade the gift
     prepaid_upgrade_star_count: Option(Int),
+    /// Optional. True, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only
+    is_upgrade_separate: Option(Bool),
+    /// Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift
+    unique_gift_number: Option(Int),
   )
 }
 
@@ -2568,10 +2790,14 @@ pub type OwnedGiftRegular {
     can_be_upgraded: Option(Bool),
     /// Optional. True, if the gift was refunded and isn't available anymore
     was_refunded: Option(Bool),
-    /// Optional. Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars
+    /// Optional. Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars; for gifts received on behalf of business accounts only
     convert_star_count: Option(Int),
-    /// Optional. Number of Telegram Stars that were paid by the sender for the ability to upgrade the gift
+    /// Optional. Number of Telegram Stars that were paid for the ability to upgrade the gift
     prepaid_upgrade_star_count: Option(Int),
+    /// Optional. True, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only
+    is_upgrade_separate: Option(Bool),
+    /// Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift
+    unique_gift_number: Option(Int),
   )
 }
 
@@ -2622,6 +2848,8 @@ pub type AcceptedGiftTypes {
     unique_gifts: Bool,
     /// True, if a Telegram Premium subscription is accepted
     premium_subscription: Bool,
+    /// True, if transfers of unique gifts from channels are accepted
+    gifts_from_channels: Bool,
   )
 }
 
@@ -2682,7 +2910,7 @@ pub type BotCommandScopeChat {
   BotCommandScopeChat(
     /// Scope type, must be chat
     type_: String,
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
     chat_id: IntOrString,
   )
 }
@@ -2692,7 +2920,7 @@ pub type BotCommandScopeChatAdministrators {
   BotCommandScopeChatAdministrators(
     /// Scope type, must be chat_administrators
     type_: String,
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
     chat_id: IntOrString,
   )
 }
@@ -2702,7 +2930,7 @@ pub type BotCommandScopeChatMember {
   BotCommandScopeChatMember(
     /// Scope type, must be chat_member
     type_: String,
-    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+    /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
     chat_id: IntOrString,
     /// Unique identifier of the target user
     user_id: Int,
@@ -4707,6 +4935,10 @@ pub fn user_decoder() -> decode.Decoder(User) {
     "has_main_web_app",
     decode.optional(decode.bool),
   )
+  use has_topics_enabled <- decode.field(
+    "has_topics_enabled",
+    decode.optional(decode.bool),
+  )
   decode.success(User(
     id: id,
     is_bot: is_bot,
@@ -4721,6 +4953,7 @@ pub fn user_decoder() -> decode.Decoder(User) {
     supports_inline_queries: supports_inline_queries,
     can_connect_to_business: can_connect_to_business,
     has_main_web_app: has_main_web_app,
+    has_topics_enabled: has_topics_enabled,
   ))
 }
 
@@ -4732,6 +4965,10 @@ pub fn chat_decoder() -> decode.Decoder(Chat) {
   use first_name <- decode.field("first_name", decode.optional(decode.string))
   use last_name <- decode.field("last_name", decode.optional(decode.string))
   use is_forum <- decode.field("is_forum", decode.optional(decode.bool))
+  use is_direct_messages <- decode.field(
+    "is_direct_messages",
+    decode.optional(decode.bool),
+  )
   decode.success(Chat(
     id: id,
     type_: type_,
@@ -4740,6 +4977,7 @@ pub fn chat_decoder() -> decode.Decoder(Chat) {
     first_name: first_name,
     last_name: last_name,
     is_forum: is_forum,
+    is_direct_messages: is_direct_messages,
   ))
 }
 
@@ -4751,6 +4989,10 @@ pub fn chat_full_info_decoder() -> decode.Decoder(ChatFullInfo) {
   use first_name <- decode.field("first_name", decode.optional(decode.string))
   use last_name <- decode.field("last_name", decode.optional(decode.string))
   use is_forum <- decode.field("is_forum", decode.optional(decode.bool))
+  use is_direct_messages <- decode.field(
+    "is_direct_messages",
+    decode.optional(decode.bool),
+  )
   use accent_color_id <- decode.field("accent_color_id", decode.int)
   use max_reaction_count <- decode.field("max_reaction_count", decode.int)
   use photo <- decode.field("photo", decode.optional(chat_photo_decoder()))
@@ -4776,6 +5018,10 @@ pub fn chat_full_info_decoder() -> decode.Decoder(ChatFullInfo) {
   )
   use personal_chat <- decode.field(
     "personal_chat",
+    decode.optional(chat_decoder()),
+  )
+  use parent_chat <- decode.field(
+    "parent_chat",
     decode.optional(chat_decoder()),
   )
   use available_reactions <- decode.field(
@@ -4885,6 +5131,15 @@ pub fn chat_full_info_decoder() -> decode.Decoder(ChatFullInfo) {
     "location",
     decode.optional(chat_location_decoder()),
   )
+  use rating <- decode.field("rating", decode.optional(user_rating_decoder()))
+  use unique_gift_colors <- decode.field(
+    "unique_gift_colors",
+    decode.optional(unique_gift_colors_decoder()),
+  )
+  use paid_message_star_count <- decode.field(
+    "paid_message_star_count",
+    decode.optional(decode.int),
+  )
   decode.success(ChatFullInfo(
     id: id,
     type_: type_,
@@ -4893,6 +5148,7 @@ pub fn chat_full_info_decoder() -> decode.Decoder(ChatFullInfo) {
     first_name: first_name,
     last_name: last_name,
     is_forum: is_forum,
+    is_direct_messages: is_direct_messages,
     accent_color_id: accent_color_id,
     max_reaction_count: max_reaction_count,
     photo: photo,
@@ -4902,6 +5158,7 @@ pub fn chat_full_info_decoder() -> decode.Decoder(ChatFullInfo) {
     business_location: business_location,
     business_opening_hours: business_opening_hours,
     personal_chat: personal_chat,
+    parent_chat: parent_chat,
     available_reactions: available_reactions,
     background_custom_emoji_id: background_custom_emoji_id,
     profile_accent_color_id: profile_accent_color_id,
@@ -4931,6 +5188,9 @@ pub fn chat_full_info_decoder() -> decode.Decoder(ChatFullInfo) {
     custom_emoji_sticker_set_name: custom_emoji_sticker_set_name,
     linked_chat_id: linked_chat_id,
     location: location,
+    rating: rating,
+    unique_gift_colors: unique_gift_colors,
+    paid_message_star_count: paid_message_star_count,
   ))
 }
 
@@ -4939,6 +5199,10 @@ pub fn message_decoder() -> decode.Decoder(Message) {
   use message_thread_id <- decode.field(
     "message_thread_id",
     decode.optional(decode.int),
+  )
+  use direct_messages_topic <- decode.field(
+    "direct_messages_topic",
+    decode.optional(direct_messages_topic_decoder()),
   )
   use from <- decode.field("from", decode.optional(user_decoder()))
   use sender_chat <- decode.field(
@@ -4984,6 +5248,10 @@ pub fn message_decoder() -> decode.Decoder(Message) {
     "reply_to_story",
     decode.optional(story_decoder()),
   )
+  use reply_to_checklist_task_id <- decode.field(
+    "reply_to_checklist_task_id",
+    decode.optional(decode.int),
+  )
   use via_bot <- decode.field("via_bot", decode.optional(user_decoder()))
   use edit_date <- decode.field("edit_date", decode.optional(decode.int))
   use has_protected_content <- decode.field(
@@ -4994,6 +5262,7 @@ pub fn message_decoder() -> decode.Decoder(Message) {
     "is_from_offline",
     decode.optional(decode.bool),
   )
+  use is_paid_post <- decode.field("is_paid_post", decode.optional(decode.bool))
   use media_group_id <- decode.field(
     "media_group_id",
     decode.optional(decode.string),
@@ -5014,6 +5283,10 @@ pub fn message_decoder() -> decode.Decoder(Message) {
   use link_preview_options <- decode.field(
     "link_preview_options",
     decode.optional(link_preview_options_decoder()),
+  )
+  use suggested_post_info <- decode.field(
+    "suggested_post_info",
+    decode.optional(suggested_post_info_decoder()),
   )
   use effect_id <- decode.field("effect_id", decode.optional(decode.string))
   use animation <- decode.field(
@@ -5131,6 +5404,10 @@ pub fn message_decoder() -> decode.Decoder(Message) {
     "unique_gift",
     decode.optional(unique_gift_info_decoder()),
   )
+  use gift_upgrade_sent <- decode.field(
+    "gift_upgrade_sent",
+    decode.optional(gift_info_decoder()),
+  )
   use connected_website <- decode.field(
     "connected_website",
     decode.optional(decode.string),
@@ -5208,6 +5485,26 @@ pub fn message_decoder() -> decode.Decoder(Message) {
     "paid_message_price_changed",
     decode.optional(paid_message_price_changed_decoder()),
   )
+  use suggested_post_approved <- decode.field(
+    "suggested_post_approved",
+    decode.optional(suggested_post_approved_decoder()),
+  )
+  use suggested_post_approval_failed <- decode.field(
+    "suggested_post_approval_failed",
+    decode.optional(suggested_post_approval_failed_decoder()),
+  )
+  use suggested_post_declined <- decode.field(
+    "suggested_post_declined",
+    decode.optional(suggested_post_declined_decoder()),
+  )
+  use suggested_post_paid <- decode.field(
+    "suggested_post_paid",
+    decode.optional(suggested_post_paid_decoder()),
+  )
+  use suggested_post_refunded <- decode.field(
+    "suggested_post_refunded",
+    decode.optional(suggested_post_refunded_decoder()),
+  )
   use video_chat_scheduled <- decode.field(
     "video_chat_scheduled",
     decode.optional(video_chat_scheduled_decoder()),
@@ -5235,6 +5532,7 @@ pub fn message_decoder() -> decode.Decoder(Message) {
   decode.success(Message(
     message_id: message_id,
     message_thread_id: message_thread_id,
+    direct_messages_topic: direct_messages_topic,
     from: from,
     sender_chat: sender_chat,
     sender_boost_count: sender_boost_count,
@@ -5249,16 +5547,19 @@ pub fn message_decoder() -> decode.Decoder(Message) {
     external_reply: external_reply,
     quote: quote,
     reply_to_story: reply_to_story,
+    reply_to_checklist_task_id: reply_to_checklist_task_id,
     via_bot: via_bot,
     edit_date: edit_date,
     has_protected_content: has_protected_content,
     is_from_offline: is_from_offline,
+    is_paid_post: is_paid_post,
     media_group_id: media_group_id,
     author_signature: author_signature,
     paid_star_count: paid_star_count,
     text: text,
     entities: entities,
     link_preview_options: link_preview_options,
+    suggested_post_info: suggested_post_info,
     effect_id: effect_id,
     animation: animation,
     audio: audio,
@@ -5300,6 +5601,7 @@ pub fn message_decoder() -> decode.Decoder(Message) {
     chat_shared: chat_shared,
     gift: gift,
     unique_gift: unique_gift,
+    gift_upgrade_sent: gift_upgrade_sent,
     connected_website: connected_website,
     write_access_allowed: write_access_allowed,
     passport_data: passport_data,
@@ -5320,6 +5622,11 @@ pub fn message_decoder() -> decode.Decoder(Message) {
     giveaway_winners: giveaway_winners,
     giveaway_completed: giveaway_completed,
     paid_message_price_changed: paid_message_price_changed,
+    suggested_post_approved: suggested_post_approved,
+    suggested_post_approval_failed: suggested_post_approval_failed,
+    suggested_post_declined: suggested_post_declined,
+    suggested_post_paid: suggested_post_paid,
+    suggested_post_refunded: suggested_post_refunded,
     video_chat_scheduled: video_chat_scheduled,
     video_chat_started: video_chat_started,
     video_chat_ended: video_chat_ended,
@@ -5485,6 +5792,10 @@ pub fn reply_parameters_decoder() -> decode.Decoder(ReplyParameters) {
     "quote_position",
     decode.optional(decode.int),
   )
+  use checklist_task_id <- decode.field(
+    "checklist_task_id",
+    decode.optional(decode.int),
+  )
   decode.success(ReplyParameters(
     message_id: message_id,
     chat_id: chat_id,
@@ -5493,6 +5804,7 @@ pub fn reply_parameters_decoder() -> decode.Decoder(ReplyParameters) {
     quote_parse_mode: quote_parse_mode,
     quote_entities: quote_entities,
     quote_position: quote_position,
+    checklist_task_id: checklist_task_id,
   ))
 }
 
@@ -5873,6 +6185,10 @@ pub fn checklist_task_decoder() -> decode.Decoder(ChecklistTask) {
     "completed_by_user",
     decode.optional(user_decoder()),
   )
+  use completed_by_chat <- decode.field(
+    "completed_by_chat",
+    decode.optional(chat_decoder()),
+  )
   use completion_date <- decode.field(
     "completion_date",
     decode.optional(decode.int),
@@ -5882,6 +6198,7 @@ pub fn checklist_task_decoder() -> decode.Decoder(ChecklistTask) {
     text: text,
     text_entities: text_entities,
     completed_by_user: completed_by_user,
+    completed_by_chat: completed_by_chat,
     completion_date: completion_date,
   ))
 }
@@ -5913,7 +6230,7 @@ pub fn checklist_decoder() -> decode.Decoder(Checklist) {
 pub fn input_checklist_task_decoder() -> decode.Decoder(InputChecklistTask) {
   use id <- decode.field("id", decode.int)
   use text <- decode.field("text", decode.string)
-  use parse_mode <- decode.field("parse_mode", decode.string)
+  use parse_mode <- decode.field("parse_mode", decode.optional(decode.string))
   use text_entities <- decode.field(
     "text_entities",
     decode.optional(decode.list(message_entity_decoder())),
@@ -5928,7 +6245,7 @@ pub fn input_checklist_task_decoder() -> decode.Decoder(InputChecklistTask) {
 
 pub fn input_checklist_decoder() -> decode.Decoder(InputChecklist) {
   use title <- decode.field("title", decode.string)
-  use parse_mode <- decode.field("parse_mode", decode.string)
+  use parse_mode <- decode.field("parse_mode", decode.optional(decode.string))
   use title_entities <- decode.field(
     "title_entities",
     decode.optional(decode.list(message_entity_decoder())),
@@ -6173,10 +6490,15 @@ pub fn forum_topic_created_decoder() -> decode.Decoder(ForumTopicCreated) {
     "icon_custom_emoji_id",
     decode.optional(decode.string),
   )
+  use is_name_implicit <- decode.field(
+    "is_name_implicit",
+    decode.optional(decode.bool),
+  )
   decode.success(ForumTopicCreated(
     name: name,
     icon_color: icon_color,
     icon_custom_emoji_id: icon_custom_emoji_id,
+    is_name_implicit: is_name_implicit,
   ))
 }
 
@@ -6318,6 +6640,86 @@ pub fn direct_message_price_changed_decoder() -> decode.Decoder(
   decode.success(DirectMessagePriceChanged(
     are_direct_messages_enabled: are_direct_messages_enabled,
     direct_message_star_count: direct_message_star_count,
+  ))
+}
+
+pub fn suggested_post_approved_decoder() -> decode.Decoder(
+  SuggestedPostApproved,
+) {
+  use suggested_post_message <- decode.field(
+    "suggested_post_message",
+    decode.optional(message_decoder()),
+  )
+  use price <- decode.field(
+    "price",
+    decode.optional(suggested_post_price_decoder()),
+  )
+  use send_date <- decode.field("send_date", decode.int)
+  decode.success(SuggestedPostApproved(
+    suggested_post_message: suggested_post_message,
+    price: price,
+    send_date: send_date,
+  ))
+}
+
+pub fn suggested_post_approval_failed_decoder() -> decode.Decoder(
+  SuggestedPostApprovalFailed,
+) {
+  use suggested_post_message <- decode.field(
+    "suggested_post_message",
+    decode.optional(message_decoder()),
+  )
+  use price <- decode.field("price", suggested_post_price_decoder())
+  decode.success(SuggestedPostApprovalFailed(
+    suggested_post_message: suggested_post_message,
+    price: price,
+  ))
+}
+
+pub fn suggested_post_declined_decoder() -> decode.Decoder(
+  SuggestedPostDeclined,
+) {
+  use suggested_post_message <- decode.field(
+    "suggested_post_message",
+    decode.optional(message_decoder()),
+  )
+  use comment <- decode.field("comment", decode.optional(decode.string))
+  decode.success(SuggestedPostDeclined(
+    suggested_post_message: suggested_post_message,
+    comment: comment,
+  ))
+}
+
+pub fn suggested_post_paid_decoder() -> decode.Decoder(SuggestedPostPaid) {
+  use suggested_post_message <- decode.field(
+    "suggested_post_message",
+    decode.optional(message_decoder()),
+  )
+  use currency <- decode.field("currency", decode.string)
+  use amount <- decode.field("amount", decode.optional(decode.int))
+  use star_amount <- decode.field(
+    "star_amount",
+    decode.optional(star_amount_decoder()),
+  )
+  decode.success(SuggestedPostPaid(
+    suggested_post_message: suggested_post_message,
+    currency: currency,
+    amount: amount,
+    star_amount: star_amount,
+  ))
+}
+
+pub fn suggested_post_refunded_decoder() -> decode.Decoder(
+  SuggestedPostRefunded,
+) {
+  use suggested_post_message <- decode.field(
+    "suggested_post_message",
+    decode.optional(message_decoder()),
+  )
+  use reason <- decode.field("reason", decode.string)
+  decode.success(SuggestedPostRefunded(
+    suggested_post_message: suggested_post_message,
+    reason: reason,
   ))
 }
 
@@ -6467,6 +6869,43 @@ pub fn link_preview_options_decoder() -> decode.Decoder(LinkPreviewOptions) {
     prefer_large_media: prefer_large_media,
     show_above_text: show_above_text,
   ))
+}
+
+pub fn suggested_post_price_decoder() -> decode.Decoder(SuggestedPostPrice) {
+  use currency <- decode.field("currency", decode.string)
+  use amount <- decode.field("amount", decode.int)
+  decode.success(SuggestedPostPrice(currency: currency, amount: amount))
+}
+
+pub fn suggested_post_info_decoder() -> decode.Decoder(SuggestedPostInfo) {
+  use state <- decode.field("state", decode.string)
+  use price <- decode.field(
+    "price",
+    decode.optional(suggested_post_price_decoder()),
+  )
+  use send_date <- decode.field("send_date", decode.optional(decode.int))
+  decode.success(SuggestedPostInfo(
+    state: state,
+    price: price,
+    send_date: send_date,
+  ))
+}
+
+pub fn suggested_post_parameters_decoder() -> decode.Decoder(
+  SuggestedPostParameters,
+) {
+  use price <- decode.field(
+    "price",
+    decode.optional(suggested_post_price_decoder()),
+  )
+  use send_date <- decode.field("send_date", decode.optional(decode.int))
+  decode.success(SuggestedPostParameters(price: price, send_date: send_date))
+}
+
+pub fn direct_messages_topic_decoder() -> decode.Decoder(DirectMessagesTopic) {
+  use topic_id <- decode.field("topic_id", decode.int)
+  use user <- decode.field("user", decode.optional(user_decoder()))
+  decode.success(DirectMessagesTopic(topic_id: topic_id, user: user))
 }
 
 pub fn user_profile_photos_decoder() -> decode.Decoder(UserProfilePhotos) {
@@ -6909,6 +7348,10 @@ pub fn chat_administrator_rights_decoder() -> decode.Decoder(
     "can_manage_topics",
     decode.optional(decode.bool),
   )
+  use can_manage_direct_messages <- decode.field(
+    "can_manage_direct_messages",
+    decode.optional(decode.bool),
+  )
   decode.success(ChatAdministratorRights(
     is_anonymous: is_anonymous,
     can_manage_chat: can_manage_chat,
@@ -6925,6 +7368,7 @@ pub fn chat_administrator_rights_decoder() -> decode.Decoder(
     can_edit_messages: can_edit_messages,
     can_pin_messages: can_pin_messages,
     can_manage_topics: can_manage_topics,
+    can_manage_direct_messages: can_manage_direct_messages,
   ))
 }
 
@@ -7010,6 +7454,10 @@ pub fn chat_member_administrator_decoder() -> decode.Decoder(
     "can_manage_topics",
     decode.optional(decode.bool),
   )
+  use can_manage_direct_messages <- decode.field(
+    "can_manage_direct_messages",
+    decode.optional(decode.bool),
+  )
   use custom_title <- decode.field(
     "custom_title",
     decode.optional(decode.string),
@@ -7033,6 +7481,7 @@ pub fn chat_member_administrator_decoder() -> decode.Decoder(
     can_edit_messages: can_edit_messages,
     can_pin_messages: can_pin_messages,
     can_manage_topics: can_manage_topics,
+    can_manage_direct_messages: can_manage_direct_messages,
     custom_title: custom_title,
   ))
 }
@@ -7250,6 +7699,22 @@ pub fn business_opening_hours_decoder() -> decode.Decoder(BusinessOpeningHours) 
   ))
 }
 
+pub fn user_rating_decoder() -> decode.Decoder(UserRating) {
+  use level <- decode.field("level", decode.int)
+  use rating <- decode.field("rating", decode.int)
+  use current_level_rating <- decode.field("current_level_rating", decode.int)
+  use next_level_rating <- decode.field(
+    "next_level_rating",
+    decode.optional(decode.int),
+  )
+  decode.success(UserRating(
+    level: level,
+    rating: rating,
+    current_level_rating: current_level_rating,
+    next_level_rating: next_level_rating,
+  ))
+}
+
 pub fn story_area_position_decoder() -> decode.Decoder(StoryAreaPosition) {
   use x_percentage <- decode.field("x_percentage", decode.float)
   use y_percentage <- decode.field("y_percentage", decode.float)
@@ -7452,11 +7917,27 @@ pub fn forum_topic_decoder() -> decode.Decoder(ForumTopic) {
     "icon_custom_emoji_id",
     decode.optional(decode.string),
   )
+  use is_name_implicit <- decode.field(
+    "is_name_implicit",
+    decode.optional(decode.bool),
+  )
   decode.success(ForumTopic(
     message_thread_id: message_thread_id,
     name: name,
     icon_color: icon_color,
     icon_custom_emoji_id: icon_custom_emoji_id,
+    is_name_implicit: is_name_implicit,
+  ))
+}
+
+pub fn gift_background_decoder() -> decode.Decoder(GiftBackground) {
+  use center_color <- decode.field("center_color", decode.int)
+  use edge_color <- decode.field("edge_color", decode.int)
+  use text_color <- decode.field("text_color", decode.int)
+  decode.success(GiftBackground(
+    center_color: center_color,
+    edge_color: edge_color,
+    text_color: text_color,
   ))
 }
 
@@ -7468,18 +7949,47 @@ pub fn gift_decoder() -> decode.Decoder(Gift) {
     "upgrade_star_count",
     decode.optional(decode.int),
   )
+  use is_premium <- decode.field("is_premium", decode.optional(decode.bool))
+  use has_colors <- decode.field("has_colors", decode.optional(decode.bool))
   use total_count <- decode.field("total_count", decode.optional(decode.int))
   use remaining_count <- decode.field(
     "remaining_count",
     decode.optional(decode.int),
+  )
+  use personal_total_count <- decode.field(
+    "personal_total_count",
+    decode.optional(decode.int),
+  )
+  use personal_remaining_count <- decode.field(
+    "personal_remaining_count",
+    decode.optional(decode.int),
+  )
+  use background <- decode.field(
+    "background",
+    decode.optional(gift_background_decoder()),
+  )
+  use unique_gift_variant_count <- decode.field(
+    "unique_gift_variant_count",
+    decode.optional(decode.int),
+  )
+  use publisher_chat <- decode.field(
+    "publisher_chat",
+    decode.optional(chat_decoder()),
   )
   decode.success(Gift(
     id: id,
     sticker: sticker,
     star_count: star_count,
     upgrade_star_count: upgrade_star_count,
+    is_premium: is_premium,
+    has_colors: has_colors,
     total_count: total_count,
     remaining_count: remaining_count,
+    personal_total_count: personal_total_count,
+    personal_remaining_count: personal_remaining_count,
+    background: background,
+    unique_gift_variant_count: unique_gift_variant_count,
+    publisher_chat: publisher_chat,
   ))
 }
 
@@ -7536,20 +8046,71 @@ pub fn unique_gift_backdrop_decoder() -> decode.Decoder(UniqueGiftBackdrop) {
   ))
 }
 
+pub fn unique_gift_colors_decoder() -> decode.Decoder(UniqueGiftColors) {
+  use model_custom_emoji_id <- decode.field(
+    "model_custom_emoji_id",
+    decode.string,
+  )
+  use symbol_custom_emoji_id <- decode.field(
+    "symbol_custom_emoji_id",
+    decode.string,
+  )
+  use light_theme_main_color <- decode.field(
+    "light_theme_main_color",
+    decode.int,
+  )
+  use light_theme_other_colors <- decode.field(
+    "light_theme_other_colors",
+    decode.list(decode.int),
+  )
+  use dark_theme_main_color <- decode.field("dark_theme_main_color", decode.int)
+  use dark_theme_other_colors <- decode.field(
+    "dark_theme_other_colors",
+    decode.list(decode.int),
+  )
+  decode.success(UniqueGiftColors(
+    model_custom_emoji_id: model_custom_emoji_id,
+    symbol_custom_emoji_id: symbol_custom_emoji_id,
+    light_theme_main_color: light_theme_main_color,
+    light_theme_other_colors: light_theme_other_colors,
+    dark_theme_main_color: dark_theme_main_color,
+    dark_theme_other_colors: dark_theme_other_colors,
+  ))
+}
+
 pub fn unique_gift_decoder() -> decode.Decoder(UniqueGift) {
+  use gift_id <- decode.field("gift_id", decode.string)
   use base_name <- decode.field("base_name", decode.string)
   use name <- decode.field("name", decode.string)
   use number <- decode.field("number", decode.int)
   use model <- decode.field("model", unique_gift_model_decoder())
   use symbol <- decode.field("symbol", unique_gift_symbol_decoder())
   use backdrop <- decode.field("backdrop", unique_gift_backdrop_decoder())
+  use is_premium <- decode.field("is_premium", decode.optional(decode.bool))
+  use is_from_blockchain <- decode.field(
+    "is_from_blockchain",
+    decode.optional(decode.bool),
+  )
+  use colors <- decode.field(
+    "colors",
+    decode.optional(unique_gift_colors_decoder()),
+  )
+  use publisher_chat <- decode.field(
+    "publisher_chat",
+    decode.optional(chat_decoder()),
+  )
   decode.success(UniqueGift(
+    gift_id: gift_id,
     base_name: base_name,
     name: name,
     number: number,
     model: model,
     symbol: symbol,
     backdrop: backdrop,
+    is_premium: is_premium,
+    is_from_blockchain: is_from_blockchain,
+    colors: colors,
+    publisher_chat: publisher_chat,
   ))
 }
 
@@ -7567,6 +8128,10 @@ pub fn gift_info_decoder() -> decode.Decoder(GiftInfo) {
     "prepaid_upgrade_star_count",
     decode.optional(decode.int),
   )
+  use is_upgrade_separate <- decode.field(
+    "is_upgrade_separate",
+    decode.optional(decode.bool),
+  )
   use can_be_upgraded <- decode.field(
     "can_be_upgraded",
     decode.optional(decode.bool),
@@ -7577,23 +8142,33 @@ pub fn gift_info_decoder() -> decode.Decoder(GiftInfo) {
     decode.optional(decode.list(message_entity_decoder())),
   )
   use is_private <- decode.field("is_private", decode.optional(decode.bool))
+  use unique_gift_number <- decode.field(
+    "unique_gift_number",
+    decode.optional(decode.int),
+  )
   decode.success(GiftInfo(
     gift: gift,
     owned_gift_id: owned_gift_id,
     convert_star_count: convert_star_count,
     prepaid_upgrade_star_count: prepaid_upgrade_star_count,
+    is_upgrade_separate: is_upgrade_separate,
     can_be_upgraded: can_be_upgraded,
     text: text,
     entities: entities,
     is_private: is_private,
+    unique_gift_number: unique_gift_number,
   ))
 }
 
 pub fn unique_gift_info_decoder() -> decode.Decoder(UniqueGiftInfo) {
   use gift <- decode.field("gift", unique_gift_decoder())
   use origin <- decode.field("origin", decode.string)
-  use last_resale_star_count <- decode.field(
-    "last_resale_star_count",
+  use last_resale_currency <- decode.field(
+    "last_resale_currency",
+    decode.optional(decode.string),
+  )
+  use last_resale_amount <- decode.field(
+    "last_resale_amount",
     decode.optional(decode.int),
   )
   use owned_gift_id <- decode.field(
@@ -7611,7 +8186,8 @@ pub fn unique_gift_info_decoder() -> decode.Decoder(UniqueGiftInfo) {
   decode.success(UniqueGiftInfo(
     gift: gift,
     origin: origin,
-    last_resale_star_count: last_resale_star_count,
+    last_resale_currency: last_resale_currency,
+    last_resale_amount: last_resale_amount,
     owned_gift_id: owned_gift_id,
     transfer_star_count: transfer_star_count,
     next_transfer_date: next_transfer_date,
@@ -7650,6 +8226,14 @@ pub fn owned_gift_decoder() -> decode.Decoder(OwnedGift) {
     "prepaid_upgrade_star_count",
     decode.optional(decode.int),
   )
+  use is_upgrade_separate <- decode.field(
+    "is_upgrade_separate",
+    decode.optional(decode.bool),
+  )
+  use unique_gift_number <- decode.field(
+    "unique_gift_number",
+    decode.optional(decode.int),
+  )
   decode.success(OwnedGift(
     type_: type_,
     gift: gift,
@@ -7664,6 +8248,8 @@ pub fn owned_gift_decoder() -> decode.Decoder(OwnedGift) {
     was_refunded: was_refunded,
     convert_star_count: convert_star_count,
     prepaid_upgrade_star_count: prepaid_upgrade_star_count,
+    is_upgrade_separate: is_upgrade_separate,
+    unique_gift_number: unique_gift_number,
   ))
 }
 
@@ -7699,6 +8285,14 @@ pub fn owned_gift_regular_decoder() -> decode.Decoder(OwnedGiftRegular) {
     "prepaid_upgrade_star_count",
     decode.optional(decode.int),
   )
+  use is_upgrade_separate <- decode.field(
+    "is_upgrade_separate",
+    decode.optional(decode.bool),
+  )
+  use unique_gift_number <- decode.field(
+    "unique_gift_number",
+    decode.optional(decode.int),
+  )
   decode.success(OwnedGiftRegular(
     type_: type_,
     gift: gift,
@@ -7713,6 +8307,8 @@ pub fn owned_gift_regular_decoder() -> decode.Decoder(OwnedGiftRegular) {
     was_refunded: was_refunded,
     convert_star_count: convert_star_count,
     prepaid_upgrade_star_count: prepaid_upgrade_star_count,
+    is_upgrade_separate: is_upgrade_separate,
+    unique_gift_number: unique_gift_number,
   ))
 }
 
@@ -7770,11 +8366,13 @@ pub fn accepted_gift_types_decoder() -> decode.Decoder(AcceptedGiftTypes) {
   use limited_gifts <- decode.field("limited_gifts", decode.bool)
   use unique_gifts <- decode.field("unique_gifts", decode.bool)
   use premium_subscription <- decode.field("premium_subscription", decode.bool)
+  use gifts_from_channels <- decode.field("gifts_from_channels", decode.bool)
   decode.success(AcceptedGiftTypes(
     unlimited_gifts: unlimited_gifts,
     limited_gifts: limited_gifts,
     unique_gifts: unique_gifts,
     premium_subscription: premium_subscription,
+    gifts_from_channels: gifts_from_channels,
   ))
 }
 
@@ -10278,6 +10876,7 @@ pub fn encode_user(user: User) -> Json {
       json.nullable(user.can_connect_to_business, json.bool),
     ),
     #("has_main_web_app", json.nullable(user.has_main_web_app, json.bool)),
+    #("has_topics_enabled", json.nullable(user.has_topics_enabled, json.bool)),
   ])
 }
 
@@ -10290,6 +10889,7 @@ pub fn encode_chat(chat: Chat) -> Json {
     #("first_name", json.nullable(chat.first_name, json.string)),
     #("last_name", json.nullable(chat.last_name, json.string)),
     #("is_forum", json.nullable(chat.is_forum, json.bool)),
+    #("is_direct_messages", json.nullable(chat.is_direct_messages, json.bool)),
   ])
 }
 
@@ -10302,6 +10902,10 @@ pub fn encode_chat_full_info(chat_full_info: ChatFullInfo) -> Json {
     #("first_name", json.nullable(chat_full_info.first_name, json.string)),
     #("last_name", json.nullable(chat_full_info.last_name, json.string)),
     #("is_forum", json.nullable(chat_full_info.is_forum, json.bool)),
+    #(
+      "is_direct_messages",
+      json.nullable(chat_full_info.is_direct_messages, json.bool),
+    ),
     #("accent_color_id", json.int(chat_full_info.accent_color_id)),
     #("max_reaction_count", json.int(chat_full_info.max_reaction_count)),
     #("photo", json.nullable(chat_full_info.photo, encode_chat_photo)),
@@ -10326,6 +10930,7 @@ pub fn encode_chat_full_info(chat_full_info: ChatFullInfo) -> Json {
       ),
     ),
     #("personal_chat", json.nullable(chat_full_info.personal_chat, encode_chat)),
+    #("parent_chat", json.nullable(chat_full_info.parent_chat, encode_chat)),
     #(
       "available_reactions",
       json.nullable(chat_full_info.available_reactions, json.array(
@@ -10436,6 +11041,18 @@ pub fn encode_chat_full_info(chat_full_info: ChatFullInfo) -> Json {
     ),
     #("linked_chat_id", json.nullable(chat_full_info.linked_chat_id, json.int)),
     #("location", json.nullable(chat_full_info.location, encode_chat_location)),
+    #("rating", json.nullable(chat_full_info.rating, encode_user_rating)),
+    #(
+      "unique_gift_colors",
+      json.nullable(
+        chat_full_info.unique_gift_colors,
+        encode_unique_gift_colors,
+      ),
+    ),
+    #(
+      "paid_message_star_count",
+      json.nullable(chat_full_info.paid_message_star_count, json.int),
+    ),
   ])
 }
 
@@ -10443,6 +11060,10 @@ pub fn encode_message(message: Message) -> Json {
   json_object_filter_nulls([
     #("message_id", json.int(message.message_id)),
     #("message_thread_id", json.nullable(message.message_thread_id, json.int)),
+    #(
+      "direct_messages_topic",
+      json.nullable(message.direct_messages_topic, encode_direct_messages_topic),
+    ),
     #("from", json.nullable(message.from, encode_user)),
     #("sender_chat", json.nullable(message.sender_chat, encode_chat)),
     #("sender_boost_count", json.nullable(message.sender_boost_count, json.int)),
@@ -10475,6 +11096,10 @@ pub fn encode_message(message: Message) -> Json {
     ),
     #("quote", json.nullable(message.quote, encode_text_quote)),
     #("reply_to_story", json.nullable(message.reply_to_story, encode_story)),
+    #(
+      "reply_to_checklist_task_id",
+      json.nullable(message.reply_to_checklist_task_id, json.int),
+    ),
     #("via_bot", json.nullable(message.via_bot, encode_user)),
     #("edit_date", json.nullable(message.edit_date, json.int)),
     #(
@@ -10482,6 +11107,7 @@ pub fn encode_message(message: Message) -> Json {
       json.nullable(message.has_protected_content, json.bool),
     ),
     #("is_from_offline", json.nullable(message.is_from_offline, json.bool)),
+    #("is_paid_post", json.nullable(message.is_paid_post, json.bool)),
     #("media_group_id", json.nullable(message.media_group_id, json.string)),
     #("author_signature", json.nullable(message.author_signature, json.string)),
     #("paid_star_count", json.nullable(message.paid_star_count, json.int)),
@@ -10493,6 +11119,10 @@ pub fn encode_message(message: Message) -> Json {
     #(
       "link_preview_options",
       json.nullable(message.link_preview_options, encode_link_preview_options),
+    ),
+    #(
+      "suggested_post_info",
+      json.nullable(message.suggested_post_info, encode_suggested_post_info),
     ),
     #("effect_id", json.nullable(message.effect_id, json.string)),
     #("animation", json.nullable(message.animation, encode_animation)),
@@ -10579,6 +11209,10 @@ pub fn encode_message(message: Message) -> Json {
     #(
       "unique_gift",
       json.nullable(message.unique_gift, encode_unique_gift_info),
+    ),
+    #(
+      "gift_upgrade_sent",
+      json.nullable(message.gift_upgrade_sent, encode_gift_info),
     ),
     #(
       "connected_website",
@@ -10673,6 +11307,38 @@ pub fn encode_message(message: Message) -> Json {
       ),
     ),
     #(
+      "suggested_post_approved",
+      json.nullable(
+        message.suggested_post_approved,
+        encode_suggested_post_approved,
+      ),
+    ),
+    #(
+      "suggested_post_approval_failed",
+      json.nullable(
+        message.suggested_post_approval_failed,
+        encode_suggested_post_approval_failed,
+      ),
+    ),
+    #(
+      "suggested_post_declined",
+      json.nullable(
+        message.suggested_post_declined,
+        encode_suggested_post_declined,
+      ),
+    ),
+    #(
+      "suggested_post_paid",
+      json.nullable(message.suggested_post_paid, encode_suggested_post_paid),
+    ),
+    #(
+      "suggested_post_refunded",
+      json.nullable(
+        message.suggested_post_refunded,
+        encode_suggested_post_refunded,
+      ),
+    ),
+    #(
       "video_chat_scheduled",
       json.nullable(message.video_chat_scheduled, encode_video_chat_scheduled),
     ),
@@ -10700,7 +11366,9 @@ pub fn encode_message(message: Message) -> Json {
 }
 
 pub fn encode_message_id(message_id: MessageId) -> Json {
-  json_object_filter_nulls([#("message_id", json.int(message_id.message_id))])
+  json_object_filter_nulls([
+    #("message_id", json.int(message_id.message_id)),
+  ])
 }
 
 pub fn encode_inaccessible_message(
@@ -10825,6 +11493,10 @@ pub fn encode_reply_parameters(reply_parameters: ReplyParameters) -> Json {
     #(
       "quote_position",
       json.nullable(reply_parameters.quote_position, json.int),
+    ),
+    #(
+      "checklist_task_id",
+      json.nullable(reply_parameters.checklist_task_id, json.int),
     ),
   ])
 }
@@ -11108,6 +11780,10 @@ pub fn encode_checklist_task(checklist_task: ChecklistTask) -> Json {
       json.nullable(checklist_task.completed_by_user, encode_user),
     ),
     #(
+      "completed_by_chat",
+      json.nullable(checklist_task.completed_by_chat, encode_chat),
+    ),
+    #(
       "completion_date",
       json.nullable(checklist_task.completion_date, json.int),
     ),
@@ -11142,7 +11818,7 @@ pub fn encode_input_checklist_task(
   json_object_filter_nulls([
     #("id", json.int(input_checklist_task.id)),
     #("text", json.string(input_checklist_task.text)),
-    #("parse_mode", json.string(input_checklist_task.parse_mode)),
+    #("parse_mode", json.nullable(input_checklist_task.parse_mode, json.string)),
     #(
       "text_entities",
       json.nullable(input_checklist_task.text_entities, json.array(
@@ -11156,7 +11832,7 @@ pub fn encode_input_checklist_task(
 pub fn encode_input_checklist(input_checklist: InputChecklist) -> Json {
   json_object_filter_nulls([
     #("title", json.string(input_checklist.title)),
-    #("parse_mode", json.string(input_checklist.parse_mode)),
+    #("parse_mode", json.nullable(input_checklist.parse_mode, json.string)),
     #(
       "title_entities",
       json.nullable(input_checklist.title_entities, json.array(
@@ -11386,6 +12062,10 @@ pub fn encode_forum_topic_created(
       "icon_custom_emoji_id",
       json.nullable(forum_topic_created.icon_custom_emoji_id, json.string),
     ),
+    #(
+      "is_name_implicit",
+      json.nullable(forum_topic_created.is_name_implicit, json.bool),
+    ),
   ])
 }
 
@@ -11486,7 +12166,9 @@ pub fn encode_video_chat_started(_video_chat_started: VideoChatStarted) -> Json 
 }
 
 pub fn encode_video_chat_ended(video_chat_ended: VideoChatEnded) -> Json {
-  json_object_filter_nulls([#("duration", json.int(video_chat_ended.duration))])
+  json_object_filter_nulls([
+    #("duration", json.int(video_chat_ended.duration)),
+  ])
 }
 
 pub fn encode_video_chat_participants_invited(
@@ -11526,6 +12208,90 @@ pub fn encode_direct_message_price_changed(
         json.int,
       ),
     ),
+  ])
+}
+
+pub fn encode_suggested_post_approved(
+  suggested_post_approved: SuggestedPostApproved,
+) -> Json {
+  json_object_filter_nulls([
+    #(
+      "suggested_post_message",
+      json.nullable(
+        suggested_post_approved.suggested_post_message,
+        encode_message,
+      ),
+    ),
+    #(
+      "price",
+      json.nullable(suggested_post_approved.price, encode_suggested_post_price),
+    ),
+    #("send_date", json.int(suggested_post_approved.send_date)),
+  ])
+}
+
+pub fn encode_suggested_post_approval_failed(
+  suggested_post_approval_failed: SuggestedPostApprovalFailed,
+) -> Json {
+  json_object_filter_nulls([
+    #(
+      "suggested_post_message",
+      json.nullable(
+        suggested_post_approval_failed.suggested_post_message,
+        encode_message,
+      ),
+    ),
+    #(
+      "price",
+      encode_suggested_post_price(suggested_post_approval_failed.price),
+    ),
+  ])
+}
+
+pub fn encode_suggested_post_declined(
+  suggested_post_declined: SuggestedPostDeclined,
+) -> Json {
+  json_object_filter_nulls([
+    #(
+      "suggested_post_message",
+      json.nullable(
+        suggested_post_declined.suggested_post_message,
+        encode_message,
+      ),
+    ),
+    #("comment", json.nullable(suggested_post_declined.comment, json.string)),
+  ])
+}
+
+pub fn encode_suggested_post_paid(
+  suggested_post_paid: SuggestedPostPaid,
+) -> Json {
+  json_object_filter_nulls([
+    #(
+      "suggested_post_message",
+      json.nullable(suggested_post_paid.suggested_post_message, encode_message),
+    ),
+    #("currency", json.string(suggested_post_paid.currency)),
+    #("amount", json.nullable(suggested_post_paid.amount, json.int)),
+    #(
+      "star_amount",
+      json.nullable(suggested_post_paid.star_amount, encode_star_amount),
+    ),
+  ])
+}
+
+pub fn encode_suggested_post_refunded(
+  suggested_post_refunded: SuggestedPostRefunded,
+) -> Json {
+  json_object_filter_nulls([
+    #(
+      "suggested_post_message",
+      json.nullable(
+        suggested_post_refunded.suggested_post_message,
+        encode_message,
+      ),
+    ),
+    #("reason", json.string(suggested_post_refunded.reason)),
   ])
 }
 
@@ -11641,6 +12407,52 @@ pub fn encode_link_preview_options(
   ])
 }
 
+pub fn encode_suggested_post_price(
+  suggested_post_price: SuggestedPostPrice,
+) -> Json {
+  json_object_filter_nulls([
+    #("currency", json.string(suggested_post_price.currency)),
+    #("amount", json.int(suggested_post_price.amount)),
+  ])
+}
+
+pub fn encode_suggested_post_info(
+  suggested_post_info: SuggestedPostInfo,
+) -> Json {
+  json_object_filter_nulls([
+    #("state", json.string(suggested_post_info.state)),
+    #(
+      "price",
+      json.nullable(suggested_post_info.price, encode_suggested_post_price),
+    ),
+    #("send_date", json.nullable(suggested_post_info.send_date, json.int)),
+  ])
+}
+
+pub fn encode_suggested_post_parameters(
+  suggested_post_parameters: SuggestedPostParameters,
+) -> Json {
+  json_object_filter_nulls([
+    #(
+      "price",
+      json.nullable(
+        suggested_post_parameters.price,
+        encode_suggested_post_price,
+      ),
+    ),
+    #("send_date", json.nullable(suggested_post_parameters.send_date, json.int)),
+  ])
+}
+
+pub fn encode_direct_messages_topic(
+  direct_messages_topic: DirectMessagesTopic,
+) -> Json {
+  json_object_filter_nulls([
+    #("topic_id", json.int(direct_messages_topic.topic_id)),
+    #("user", json.nullable(direct_messages_topic.user, encode_user)),
+  ])
+}
+
 pub fn encode_user_profile_photos(
   user_profile_photos: UserProfilePhotos,
 ) -> Json {
@@ -11667,7 +12479,9 @@ pub fn encode_file(file: File) -> Json {
 }
 
 pub fn encode_web_app_info(web_app_info: WebAppInfo) -> Json {
-  json_object_filter_nulls([#("url", json.string(web_app_info.url))])
+  json_object_filter_nulls([
+    #("url", json.string(web_app_info.url)),
+  ])
 }
 
 pub fn encode_reply_keyboard_markup(
@@ -11950,7 +12764,9 @@ pub fn encode_switch_inline_query_chosen_chat(
 }
 
 pub fn encode_copy_text_button(copy_text_button: CopyTextButton) -> Json {
-  json_object_filter_nulls([#("text", json.string(copy_text_button.text))])
+  json_object_filter_nulls([
+    #("text", json.string(copy_text_button.text)),
+  ])
 }
 
 pub fn encode_callback_query(callback_query: CallbackQuery) -> Json {
@@ -12065,6 +12881,13 @@ pub fn encode_chat_administrator_rights(
       "can_manage_topics",
       json.nullable(chat_administrator_rights.can_manage_topics, json.bool),
     ),
+    #(
+      "can_manage_direct_messages",
+      json.nullable(
+        chat_administrator_rights.can_manage_direct_messages,
+        json.bool,
+      ),
+    ),
   ])
 }
 
@@ -12158,6 +12981,13 @@ pub fn encode_chat_member_administrator(
     #(
       "can_manage_topics",
       json.nullable(chat_member_administrator.can_manage_topics, json.bool),
+    ),
+    #(
+      "can_manage_direct_messages",
+      json.nullable(
+        chat_member_administrator.can_manage_direct_messages,
+        json.bool,
+      ),
     ),
     #(
       "custom_title",
@@ -12356,6 +13186,18 @@ pub fn encode_business_opening_hours(
   ])
 }
 
+pub fn encode_user_rating(user_rating: UserRating) -> Json {
+  json_object_filter_nulls([
+    #("level", json.int(user_rating.level)),
+    #("rating", json.int(user_rating.rating)),
+    #("current_level_rating", json.int(user_rating.current_level_rating)),
+    #(
+      "next_level_rating",
+      json.nullable(user_rating.next_level_rating, json.int),
+    ),
+  ])
+}
+
 pub fn encode_story_area_position(
   story_area_position: StoryAreaPosition,
 ) -> Json {
@@ -12492,7 +13334,9 @@ pub fn encode_reaction_type_custom_emoji(
 }
 
 pub fn encode_reaction_type_paid(reaction_type_paid: ReactionTypePaid) -> Json {
-  json_object_filter_nulls([#("type", json.string(reaction_type_paid.type_))])
+  json_object_filter_nulls([
+    #("type", json.string(reaction_type_paid.type_)),
+  ])
 }
 
 pub fn encode_reaction_count(reaction_count: ReactionCount) -> Json {
@@ -12550,6 +13394,18 @@ pub fn encode_forum_topic(forum_topic: ForumTopic) -> Json {
       "icon_custom_emoji_id",
       json.nullable(forum_topic.icon_custom_emoji_id, json.string),
     ),
+    #(
+      "is_name_implicit",
+      json.nullable(forum_topic.is_name_implicit, json.bool),
+    ),
+  ])
+}
+
+pub fn encode_gift_background(gift_background: GiftBackground) -> Json {
+  json_object_filter_nulls([
+    #("center_color", json.int(gift_background.center_color)),
+    #("edge_color", json.int(gift_background.edge_color)),
+    #("text_color", json.int(gift_background.text_color)),
   ])
 }
 
@@ -12559,13 +13415,31 @@ pub fn encode_gift(gift: Gift) -> Json {
     #("sticker", encode_sticker(gift.sticker)),
     #("star_count", json.int(gift.star_count)),
     #("upgrade_star_count", json.nullable(gift.upgrade_star_count, json.int)),
+    #("is_premium", json.nullable(gift.is_premium, json.bool)),
+    #("has_colors", json.nullable(gift.has_colors, json.bool)),
     #("total_count", json.nullable(gift.total_count, json.int)),
     #("remaining_count", json.nullable(gift.remaining_count, json.int)),
+    #(
+      "personal_total_count",
+      json.nullable(gift.personal_total_count, json.int),
+    ),
+    #(
+      "personal_remaining_count",
+      json.nullable(gift.personal_remaining_count, json.int),
+    ),
+    #("background", json.nullable(gift.background, encode_gift_background)),
+    #(
+      "unique_gift_variant_count",
+      json.nullable(gift.unique_gift_variant_count, json.int),
+    ),
+    #("publisher_chat", json.nullable(gift.publisher_chat, encode_chat)),
   ])
 }
 
 pub fn encode_gifts(gifts: Gifts) -> Json {
-  json_object_filter_nulls([#("gifts", json.array(_, encode_gift)(gifts.gifts))])
+  json_object_filter_nulls([
+    #("gifts", json.array(_, encode_gift)(gifts.gifts)),
+  ])
 }
 
 pub fn encode_unique_gift_model(unique_gift_model: UniqueGiftModel) -> Json {
@@ -12605,14 +13479,51 @@ pub fn encode_unique_gift_backdrop(
   ])
 }
 
+pub fn encode_unique_gift_colors(unique_gift_colors: UniqueGiftColors) -> Json {
+  json_object_filter_nulls([
+    #(
+      "model_custom_emoji_id",
+      json.string(unique_gift_colors.model_custom_emoji_id),
+    ),
+    #(
+      "symbol_custom_emoji_id",
+      json.string(unique_gift_colors.symbol_custom_emoji_id),
+    ),
+    #(
+      "light_theme_main_color",
+      json.int(unique_gift_colors.light_theme_main_color),
+    ),
+    #(
+      "light_theme_other_colors",
+      json.array(_, json.int)(unique_gift_colors.light_theme_other_colors),
+    ),
+    #(
+      "dark_theme_main_color",
+      json.int(unique_gift_colors.dark_theme_main_color),
+    ),
+    #(
+      "dark_theme_other_colors",
+      json.array(_, json.int)(unique_gift_colors.dark_theme_other_colors),
+    ),
+  ])
+}
+
 pub fn encode_unique_gift(unique_gift: UniqueGift) -> Json {
   json_object_filter_nulls([
+    #("gift_id", json.string(unique_gift.gift_id)),
     #("base_name", json.string(unique_gift.base_name)),
     #("name", json.string(unique_gift.name)),
     #("number", json.int(unique_gift.number)),
     #("model", encode_unique_gift_model(unique_gift.model)),
     #("symbol", encode_unique_gift_symbol(unique_gift.symbol)),
     #("backdrop", encode_unique_gift_backdrop(unique_gift.backdrop)),
+    #("is_premium", json.nullable(unique_gift.is_premium, json.bool)),
+    #(
+      "is_from_blockchain",
+      json.nullable(unique_gift.is_from_blockchain, json.bool),
+    ),
+    #("colors", json.nullable(unique_gift.colors, encode_unique_gift_colors)),
+    #("publisher_chat", json.nullable(unique_gift.publisher_chat, encode_chat)),
   ])
 }
 
@@ -12628,6 +13539,10 @@ pub fn encode_gift_info(gift_info: GiftInfo) -> Json {
       "prepaid_upgrade_star_count",
       json.nullable(gift_info.prepaid_upgrade_star_count, json.int),
     ),
+    #(
+      "is_upgrade_separate",
+      json.nullable(gift_info.is_upgrade_separate, json.bool),
+    ),
     #("can_be_upgraded", json.nullable(gift_info.can_be_upgraded, json.bool)),
     #("text", json.nullable(gift_info.text, json.string)),
     #(
@@ -12635,6 +13550,10 @@ pub fn encode_gift_info(gift_info: GiftInfo) -> Json {
       json.nullable(gift_info.entities, json.array(_, encode_message_entity)),
     ),
     #("is_private", json.nullable(gift_info.is_private, json.bool)),
+    #(
+      "unique_gift_number",
+      json.nullable(gift_info.unique_gift_number, json.int),
+    ),
   ])
 }
 
@@ -12643,8 +13562,12 @@ pub fn encode_unique_gift_info(unique_gift_info: UniqueGiftInfo) -> Json {
     #("gift", encode_unique_gift(unique_gift_info.gift)),
     #("origin", json.string(unique_gift_info.origin)),
     #(
-      "last_resale_star_count",
-      json.nullable(unique_gift_info.last_resale_star_count, json.int),
+      "last_resale_currency",
+      json.nullable(unique_gift_info.last_resale_currency, json.string),
+    ),
+    #(
+      "last_resale_amount",
+      json.nullable(unique_gift_info.last_resale_amount, json.int),
     ),
     #(
       "owned_gift_id",
@@ -12685,6 +13608,14 @@ pub fn encode_owned_gift(owned_gift: OwnedGift) -> Json {
       "prepaid_upgrade_star_count",
       json.nullable(owned_gift.prepaid_upgrade_star_count, json.int),
     ),
+    #(
+      "is_upgrade_separate",
+      json.nullable(owned_gift.is_upgrade_separate, json.bool),
+    ),
+    #(
+      "unique_gift_number",
+      json.nullable(owned_gift.unique_gift_number, json.int),
+    ),
   ])
 }
 
@@ -12720,6 +13651,14 @@ pub fn encode_owned_gift_regular(owned_gift_regular: OwnedGiftRegular) -> Json {
     #(
       "prepaid_upgrade_star_count",
       json.nullable(owned_gift_regular.prepaid_upgrade_star_count, json.int),
+    ),
+    #(
+      "is_upgrade_separate",
+      json.nullable(owned_gift_regular.is_upgrade_separate, json.bool),
+    ),
+    #(
+      "unique_gift_number",
+      json.nullable(owned_gift_regular.unique_gift_number, json.int),
     ),
   ])
 }
@@ -12769,6 +13708,7 @@ pub fn encode_accepted_gift_types(
       "premium_subscription",
       json.bool(accepted_gift_types.premium_subscription),
     ),
+    #("gifts_from_channels", json.bool(accepted_gift_types.gifts_from_channels)),
   ])
 }
 
@@ -12850,7 +13790,9 @@ pub fn encode_bot_command_scope_chat_member(
 }
 
 pub fn encode_bot_name(bot_name: BotName) -> Json {
-  json_object_filter_nulls([#("name", json.string(bot_name.name))])
+  json_object_filter_nulls([
+    #("name", json.string(bot_name.name)),
+  ])
 }
 
 pub fn encode_bot_description(bot_description: BotDescription) -> Json {
@@ -12870,7 +13812,9 @@ pub fn encode_bot_short_description(
 pub fn encode_menu_button_commands(
   menu_button_commands: MenuButtonCommands,
 ) -> Json {
-  json_object_filter_nulls([#("type", json.string(menu_button_commands.type_))])
+  json_object_filter_nulls([
+    #("type", json.string(menu_button_commands.type_)),
+  ])
 }
 
 pub fn encode_menu_button_web_app(menu_button_web_app: MenuButtonWebApp) -> Json {
@@ -12884,7 +13828,9 @@ pub fn encode_menu_button_web_app(menu_button_web_app: MenuButtonWebApp) -> Json
 pub fn encode_menu_button_default(
   menu_button_default: MenuButtonDefault,
 ) -> Json {
-  json_object_filter_nulls([#("type", json.string(menu_button_default.type_))])
+  json_object_filter_nulls([
+    #("type", json.string(menu_button_default.type_)),
+  ])
 }
 
 pub fn encode_chat_boost_source_premium(
