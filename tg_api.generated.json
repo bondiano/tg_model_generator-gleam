@@ -640,6 +640,15 @@
             "bool"
           ],
           "name": "has_topics_enabled"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the bot allows users to create and delete topics in private chats. Returned only in getMe.",
+          "type": [
+            "bool"
+          ],
+          "name": "allows_users_to_create_topics"
         }
       ],
       "description": "This object represents a Telegram user or bot.",
@@ -1166,6 +1175,15 @@
         {
           "optional": true,
           "one_of": null,
+          "description": "Optional. For private chats, the first audio added to the profile of the user",
+          "type": [
+            "Audio"
+          ],
+          "name": "first_profile_audio"
+        },
+        {
+          "optional": true,
+          "one_of": null,
           "description": "Optional. The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews",
           "type": [
             "UniqueGiftColors"
@@ -1249,6 +1267,15 @@
             "User"
           ],
           "name": "sender_business_bot"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Tag or custom title of the sender of the message; for supergroups only",
+          "type": [
+            "str"
+          ],
+          "name": "sender_tag"
         },
         {
           "optional": false,
@@ -1397,7 +1424,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. The unique identifier of a media message group this message belongs to",
+          "description": "Optional. The unique identifier inside this chat of a media message group this message belongs to",
           "type": [
             "str"
           ],
@@ -1684,6 +1711,24 @@
             "User"
           ],
           "name": "left_chat_member"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Service message: chat owner has left",
+          "type": [
+            "ChatOwnerLeft"
+          ],
+          "name": "chat_owner_left"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Service message: chat owner has changed",
+          "type": [
+            "ChatOwnerChanged"
+          ],
+          "name": "chat_owner_changed"
         },
         {
           "optional": true,
@@ -2186,7 +2231,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers)",
+          "description": "Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time)",
           "type": [
             "str"
           ],
@@ -2245,6 +2290,24 @@
             "str"
           ],
           "name": "custom_emoji_id"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. For “date_time” only, the Unix time associated with the entity",
+          "type": [
+            "int"
+          ],
+          "name": "unix_time"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. For “date_time” only, the string that defines the formatting of the date and time. See date-time entity formatting for more details.",
+          "type": [
+            "str"
+          ],
+          "name": "date_time_format"
         }
       ],
       "description": "This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.",
@@ -3102,6 +3165,66 @@
         {
           "optional": false,
           "one_of": null,
+          "description": "Video width",
+          "type": [
+            "int"
+          ],
+          "name": "width"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Video height",
+          "type": [
+            "int"
+          ],
+          "name": "height"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Codec that was used to encode the video, for example, “h264”, “h265”, or “av01”",
+          "type": [
+            "str"
+          ],
+          "name": "codec"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.",
+          "type": [
+            "int"
+          ],
+          "name": "file_size"
+        }
+      ],
+      "description": "This object represents a video file of a specific quality.",
+      "name": "VideoQuality"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Identifier for this file, which can be used to download or reuse the file",
+          "type": [
+            "str"
+          ],
+          "name": "file_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.",
+          "type": [
+            "str"
+          ],
+          "name": "file_unique_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
           "description": "Video width as defined by the sender",
           "type": [
             "int"
@@ -3155,6 +3278,18 @@
             "int"
           ],
           "name": "start_timestamp"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. List of available qualities of the video",
+          "type": [
+            "array",
+            [
+              "VideoQuality"
+            ]
+          ],
+          "name": "qualities"
         },
         {
           "optional": true,
@@ -5504,6 +5639,33 @@
         {
           "optional": false,
           "one_of": null,
+          "description": "Total number of profile audios for the target user",
+          "type": [
+            "int"
+          ],
+          "name": "total_count"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Requested profile audios",
+          "type": [
+            "array",
+            [
+              "Audio"
+            ]
+          ],
+          "name": "audios"
+        }
+      ],
+      "description": "This object represents the audios displayed on a user's profile.",
+      "name": "UserProfileAudios"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
           "description": "Identifier for this file, which can be used to download or reuse the file",
           "type": [
             "str"
@@ -5627,11 +5789,33 @@
         {
           "optional": false,
           "one_of": [],
-          "description": "Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed",
+          "description": "Text of the button. If none of the fields other than text, icon_custom_emoji_id, and style are used, it will be sent as a message when the button is pressed",
           "type": [
             "str"
           ],
           "name": "text"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.",
+          "type": [
+            "str"
+          ],
+          "name": "icon_custom_emoji_id"
+        },
+        {
+          "optional": true,
+          "one_of": [
+            "danger",
+            "success",
+            "primary"
+          ],
+          "description": "Optional. Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used.",
+          "type": [
+            "str"
+          ],
+          "name": "style"
         },
         {
           "optional": true,
@@ -5688,7 +5872,7 @@
           "name": "web_app"
         }
       ],
-      "description": "This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, String can be used instead of this object to specify the button text.",
+      "description": "This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text.",
       "name": "KeyboardButton"
     },
     {
@@ -5939,6 +6123,28 @@
         {
           "optional": true,
           "one_of": null,
+          "description": "Optional. Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.",
+          "type": [
+            "str"
+          ],
+          "name": "icon_custom_emoji_id"
+        },
+        {
+          "optional": true,
+          "one_of": [
+            "danger",
+            "success",
+            "primary"
+          ],
+          "description": "Optional. Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used.",
+          "type": [
+            "str"
+          ],
+          "name": "style"
+        },
+        {
+          "optional": true,
+          "one_of": null,
           "description": "Optional. HTTP or tg:// URL to be opened when the button is pressed. Links tg://user?id=<user_id> can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.",
           "type": [
             "str"
@@ -6027,7 +6233,7 @@
           "name": "pay"
         }
       ],
-      "description": "This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button.",
+      "description": "This object represents one button of an inline keyboard. Exactly one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button.",
       "name": "InlineKeyboardButton"
     },
     {
@@ -6532,6 +6738,15 @@
             "bool"
           ],
           "name": "can_manage_direct_messages"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of can_pin_messages.",
+          "type": [
+            "bool"
+          ],
+          "name": "can_manage_tags"
         }
       ],
       "description": "Represents the rights of an administrator in a chat.",
@@ -6833,6 +7048,15 @@
         {
           "optional": true,
           "one_of": null,
+          "description": "Optional. True, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of can_pin_messages.",
+          "type": [
+            "bool"
+          ],
+          "name": "can_manage_tags"
+        },
+        {
+          "optional": true,
+          "one_of": null,
           "description": "Optional. Custom title for this user",
           "type": [
             "str"
@@ -6853,6 +7077,15 @@
             "str"
           ],
           "name": "status"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Tag of the member",
+          "type": [
+            "str"
+          ],
+          "name": "tag"
         },
         {
           "optional": false,
@@ -6886,6 +7119,15 @@
             "str"
           ],
           "name": "status"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Tag of the member",
+          "type": [
+            "str"
+          ],
+          "name": "tag"
         },
         {
           "optional": false,
@@ -6994,6 +7236,15 @@
             "bool"
           ],
           "name": "can_add_web_page_previews"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "True, if the user is allowed to edit their own tag",
+          "type": [
+            "bool"
+          ],
+          "name": "can_edit_tag"
         },
         {
           "optional": false,
@@ -7252,6 +7503,15 @@
             "bool"
           ],
           "name": "can_add_web_page_previews"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the user is allowed to edit their own tag",
+          "type": [
+            "bool"
+          ],
+          "name": "can_edit_tag"
         },
         {
           "optional": true,
@@ -8297,11 +8557,20 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "The number of unique gifts that receive this model for every 1000 gifts upgraded",
+          "description": "The number of unique gifts that receive this model for every 1000 gift upgrades. Always 0 for crafted gifts.",
           "type": [
             "int"
           ],
           "name": "rarity_per_mille"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Rarity of the model if it is a crafted model. Currently, can be “uncommon”, “rare”, “epic”, or “legendary”.",
+          "type": [
+            "str"
+          ],
+          "name": "rarity"
         }
       ],
       "description": "This object describes the model of a unique gift.",
@@ -8554,6 +8823,15 @@
             "bool"
           ],
           "name": "is_premium"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the gift was used to craft another gift and isn't available anymore",
+          "type": [
+            "bool"
+          ],
+          "name": "is_burned"
         },
         {
           "optional": true,
@@ -9725,6 +10003,36 @@
       ],
       "description": "This object represents a boost removed from a chat.",
       "name": "ChatBoostRemoved"
+    },
+    {
+      "params": [
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The user which will be the new owner of the chat if the previous owner does not return to the chat",
+          "type": [
+            "User"
+          ],
+          "name": "new_owner"
+        }
+      ],
+      "description": "Describes a service message about the chat owner leaving the chat.",
+      "name": "ChatOwnerLeft"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "The new owner of the chat",
+          "type": [
+            "User"
+          ],
+          "name": "new_owner"
+        }
+      ],
+      "description": "Describes a service message about an ownership change in the chat.",
+      "name": "ChatOwnerChanged"
     },
     {
       "params": [

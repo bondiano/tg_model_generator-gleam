@@ -290,6 +290,8 @@ pub type User {
     has_main_web_app: Option(Bool),
     /// Optional. True, if the bot has forum topic mode enabled in private chats. Returned only in getMe.
     has_topics_enabled: Option(Bool),
+    /// Optional. True, if the bot allows users to create and delete topics in private chats. Returned only in getMe.
+    allows_users_to_create_topics: Option(Bool),
   )
 }
 
@@ -414,6 +416,8 @@ pub type ChatFullInfo {
     location: Option(ChatLocation),
     /// Optional. For private chats, the rating of the user if any
     rating: Option(UserRating),
+    /// Optional. For private chats, the first audio added to the profile of the user
+    first_profile_audio: Option(Audio),
     /// Optional. The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
     unique_gift_colors: Option(UniqueGiftColors),
     /// Optional. The number of Telegram Stars a general user have to pay to send a message to the chat
@@ -438,6 +442,8 @@ pub type Message {
     sender_boost_count: Option(Int),
     /// Optional. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
     sender_business_bot: Option(User),
+    /// Optional. Tag or custom title of the sender of the message; for supergroups only
+    sender_tag: Option(String),
     /// Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     date: Int,
     /// Optional. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
@@ -470,7 +476,7 @@ pub type Message {
     is_from_offline: Option(Bool),
     /// Optional. True, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited.
     is_paid_post: Option(Bool),
-    /// Optional. The unique identifier of a media message group this message belongs to
+    /// Optional. The unique identifier inside this chat of a media message group this message belongs to
     media_group_id: Option(String),
     /// Optional. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
     author_signature: Option(String),
@@ -532,6 +538,10 @@ pub type Message {
     new_chat_members: Option(List(User)),
     /// Optional. A member was removed from the group, information about them (this member may be the bot itself)
     left_chat_member: Option(User),
+    /// Optional. Service message: chat owner has left
+    chat_owner_left: Option(ChatOwnerLeft),
+    /// Optional. Service message: chat owner has changed
+    chat_owner_changed: Option(ChatOwnerChanged),
     /// Optional. A chat title was changed to this value
     new_chat_title: Option(String),
     /// Optional. A chat photo was change to this value
@@ -656,7 +666,7 @@ pub type InaccessibleMessage {
 /// **Official reference:** This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 pub type MessageEntity {
   MessageEntity(
-    /// Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers)
+    /// Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time)
     type_: String,
     /// Offset in UTF-16 code units to the start of the entity
     offset: Int,
@@ -670,6 +680,10 @@ pub type MessageEntity {
     language: Option(String),
     /// Optional. For “custom_emoji” only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker
     custom_emoji_id: Option(String),
+    /// Optional. For “date_time” only, the Unix time associated with the entity
+    unix_time: Option(Int),
+    /// Optional. For “date_time” only, the string that defines the formatting of the date and time. See date-time entity formatting for more details.
+    date_time_format: Option(String),
   )
 }
 
@@ -911,6 +925,24 @@ pub type Story {
   )
 }
 
+/// **Official reference:** This object represents a video file of a specific quality.
+pub type VideoQuality {
+  VideoQuality(
+    /// Identifier for this file, which can be used to download or reuse the file
+    file_id: String,
+    /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+    file_unique_id: String,
+    /// Video width
+    width: Int,
+    /// Video height
+    height: Int,
+    /// Codec that was used to encode the video, for example, “h264”, “h265”, or “av01”
+    codec: String,
+    /// Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
+    file_size: Option(Int),
+  )
+}
+
 /// **Official reference:** This object represents a video file.
 pub type Video {
   Video(
@@ -930,6 +962,8 @@ pub type Video {
     cover: Option(List(PhotoSize)),
     /// Optional. Timestamp in seconds from which the video will play in the message
     start_timestamp: Option(Int),
+    /// Optional. List of available qualities of the video
+    qualities: Option(List(VideoQuality)),
     /// Optional. Original filename as defined by the sender
     file_name: Option(String),
     /// Optional. MIME type of the file as defined by the sender
@@ -1717,6 +1751,16 @@ pub type UserProfilePhotos {
   )
 }
 
+/// **Official reference:** This object represents the audios displayed on a user's profile.
+pub type UserProfileAudios {
+  UserProfileAudios(
+    /// Total number of profile audios for the target user
+    total_count: Int,
+    /// Requested profile audios
+    audios: List(Audio),
+  )
+}
+
 /// **Official reference:** This object represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
 pub type File {
   File(
@@ -1753,17 +1797,21 @@ pub type ReplyKeyboardMarkup {
     /// Optional. The placeholder to be shown in the input field when the keyboard is active; 1-64 characters
     input_field_placeholder: Option(String),
     /// Optional. Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
-    ///
+    /// 
     /// Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language. Other users in the group don't see the keyboard.
     selective: Option(Bool),
   )
 }
 
-/// **Official reference:** This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, String can be used instead of this object to specify the button text.
+/// **Official reference:** This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text.
 pub type KeyboardButton {
   KeyboardButton(
-    /// Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed
+    /// Text of the button. If none of the fields other than text, icon_custom_emoji_id, and style are used, it will be sent as a message when the button is pressed
     text: String,
+    /// Optional. Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.
+    icon_custom_emoji_id: Option(String),
+    /// Optional. Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used.
+    style: Option(String),
     /// Optional. If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a “users_shared” service message. Available in private chats only.
     request_users: Option(KeyboardButtonRequestUsers),
     /// Optional. If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a “chat_shared” service message. Available in private chats only.
@@ -1841,7 +1889,7 @@ pub type ReplyKeyboardRemove {
     /// Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use one_time_keyboard in ReplyKeyboardMarkup)
     remove_keyboard: Bool,
     /// Optional. Use this parameter if you want to remove the keyboard for specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
-    ///
+    /// 
     /// Example: A user votes in a poll, bot returns confirmation message in reply to the vote and removes the keyboard for that user, while still showing the keyboard with poll options to users who haven't voted yet.
     selective: Option(Bool),
   )
@@ -1855,11 +1903,15 @@ pub type InlineKeyboardMarkup {
   )
 }
 
-/// **Official reference:** This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button.
+/// **Official reference:** This object represents one button of an inline keyboard. Exactly one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button.
 pub type InlineKeyboardButton {
   InlineKeyboardButton(
     /// Label text on the button
     text: String,
+    /// Optional. Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.
+    icon_custom_emoji_id: Option(String),
+    /// Optional. Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used.
+    style: Option(String),
     /// Optional. HTTP or tg:// URL to be opened when the button is pressed. Links tg://user?id=<user_id> can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
     url: Option(String),
     /// Optional. Data to be sent in a callback query to the bot when the button is pressed, 1-64 bytes
@@ -1871,7 +1923,7 @@ pub type InlineKeyboardButton {
     /// Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
     switch_inline_query: Option(String),
     /// Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.
-    ///
+    /// 
     /// This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
     switch_inline_query_current_chat: Option(String),
     /// Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
@@ -1879,11 +1931,11 @@ pub type InlineKeyboardButton {
     /// Optional. Description of the button that copies the specified text to the clipboard.
     copy_text: Option(CopyTextButton),
     /// Optional. Description of the game that will be launched when the user presses the button.
-    ///
+    /// 
     /// NOTE: This type of button must always be the first button in the first row.
     callback_game: Option(CallbackGame),
     /// Optional. Specify True, to send a Pay button. Substrings “” and “XTR” in the buttons's text will be replaced with a Telegram Star icon.
-    ///
+    /// 
     /// NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
     pay: Option(Bool),
   )
@@ -1893,7 +1945,7 @@ pub type InlineKeyboardButton {
 pub type LoginUrl {
   LoginUrl(
     /// An HTTPS URL to be opened with user authorization data added to the query string when the button is pressed. If the user refuses to provide authorization data, the original URL without information about the user will be opened. The data added is the same as described in Receiving authorization data.
-    ///
+    /// 
     /// NOTE: You must always check the hash of the received data to verify the authentication and the integrity of the data as described in Checking authorization.
     url: String,
     /// Optional. New text of the button in forwarded messages.
@@ -2038,6 +2090,8 @@ pub type ChatAdministratorRights {
     can_manage_topics: Option(Bool),
     /// Optional. True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
     can_manage_direct_messages: Option(Bool),
+    /// Optional. True, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of can_pin_messages.
+    can_manage_tags: Option(Bool),
   )
 }
 
@@ -2118,6 +2172,8 @@ pub type ChatMemberAdministrator {
     can_manage_topics: Option(Bool),
     /// Optional. True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only
     can_manage_direct_messages: Option(Bool),
+    /// Optional. True, if the administrator can edit the tags of regular members; for groups and supergroups only. If omitted defaults to the value of can_pin_messages.
+    can_manage_tags: Option(Bool),
     /// Optional. Custom title for this user
     custom_title: Option(String),
   )
@@ -2128,6 +2184,8 @@ pub type ChatMemberMember {
   ChatMemberMember(
     /// The member's status in the chat, always “member”
     status: String,
+    /// Optional. Tag of the member
+    tag: Option(String),
     /// Information about the user
     user: User,
     /// Optional. Date when the user's subscription will expire; Unix time
@@ -2140,6 +2198,8 @@ pub type ChatMemberRestricted {
   ChatMemberRestricted(
     /// The member's status in the chat, always “restricted”
     status: String,
+    /// Optional. Tag of the member
+    tag: Option(String),
     /// Information about the user
     user: User,
     /// True, if the user is a member of the chat at the moment of the request
@@ -2164,6 +2224,8 @@ pub type ChatMemberRestricted {
     can_send_other_messages: Bool,
     /// True, if the user is allowed to add web page previews to their messages
     can_add_web_page_previews: Bool,
+    /// True, if the user is allowed to edit their own tag
+    can_edit_tag: Bool,
     /// True, if the user is allowed to change the chat title, photo and other settings
     can_change_info: Bool,
     /// True, if the user is allowed to invite new users to the chat
@@ -2240,6 +2302,8 @@ pub type ChatPermissions {
     can_send_other_messages: Option(Bool),
     /// Optional. True, if the user is allowed to add web page previews to their messages
     can_add_web_page_previews: Option(Bool),
+    /// Optional. True, if the user is allowed to edit their own tag
+    can_edit_tag: Option(Bool),
     /// Optional. True, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups
     can_change_info: Option(Bool),
     /// Optional. True, if the user is allowed to invite new users to the chat
@@ -2594,8 +2658,10 @@ pub type UniqueGiftModel {
     name: String,
     /// The sticker that represents the unique gift
     sticker: Sticker,
-    /// The number of unique gifts that receive this model for every 1000 gifts upgraded
+    /// The number of unique gifts that receive this model for every 1000 gift upgrades. Always 0 for crafted gifts.
     rarity_per_mille: Int,
+    /// Optional. Rarity of the model if it is a crafted model. Currently, can be “uncommon”, “rare”, “epic”, or “legendary”.
+    rarity: Option(String),
   )
 }
 
@@ -2674,6 +2740,8 @@ pub type UniqueGift {
     backdrop: UniqueGiftBackdrop,
     /// Optional. True, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers
     is_premium: Option(Bool),
+    /// Optional. True, if the gift was used to craft another gift and isn't available anymore
+    is_burned: Option(Bool),
     /// Optional. True, if the gift is assigned from the TON blockchain and can't be resold or transferred in Telegram
     is_from_blockchain: Option(Bool),
     /// Optional. The color scheme that can be used by the gift's owner for the chat's name, replies to messages and link previews; for business account gifts and gifts that are currently on sale only
@@ -3060,6 +3128,22 @@ pub type ChatBoostRemoved {
     remove_date: Int,
     /// Source of the removed boost
     source: ChatBoostSource,
+  )
+}
+
+/// **Official reference:** Describes a service message about the chat owner leaving the chat.
+pub type ChatOwnerLeft {
+  ChatOwnerLeft(
+    /// Optional. The user which will be the new owner of the chat if the previous owner does not return to the chat
+    new_owner: Option(User),
+  )
+}
+
+/// **Official reference:** Describes a service message about an ownership change in the chat.
+pub type ChatOwnerChanged {
+  ChatOwnerChanged(
+    /// The new owner of the chat
+    new_owner: User,
   )
 }
 
@@ -3471,7 +3555,7 @@ pub type InlineQueryResultsButton {
     /// Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to switch back to the inline mode using the method switchInlineQuery inside the Web App.
     web_app: Option(WebAppInfo),
     /// Optional. Deep-linking parameter for the /start message sent to the bot when a user presses the button. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed.
-    ///
+    /// 
     /// Example: An inline bot that sends YouTube videos can ask the user to connect the bot to their YouTube account to adapt search results accordingly. To do this, it displays a 'Connect your YouTube account' button above the results, or even before showing any. The user presses the button, switches to a private chat with the bot and, in doing so, passes a start parameter that instructs the bot to return an OAuth link. Once done, the bot can offer a switch_inline button so that the user can easily return to the chat where they wanted to use the bot's inline capabilities.
     start_parameter: Option(String),
   )
@@ -4939,6 +5023,10 @@ pub fn user_decoder() -> decode.Decoder(User) {
     "has_topics_enabled",
     decode.optional(decode.bool),
   )
+  use allows_users_to_create_topics <- decode.field(
+    "allows_users_to_create_topics",
+    decode.optional(decode.bool),
+  )
   decode.success(User(
     id: id,
     is_bot: is_bot,
@@ -4954,6 +5042,7 @@ pub fn user_decoder() -> decode.Decoder(User) {
     can_connect_to_business: can_connect_to_business,
     has_main_web_app: has_main_web_app,
     has_topics_enabled: has_topics_enabled,
+    allows_users_to_create_topics: allows_users_to_create_topics,
   ))
 }
 
@@ -5132,6 +5221,10 @@ pub fn chat_full_info_decoder() -> decode.Decoder(ChatFullInfo) {
     decode.optional(chat_location_decoder()),
   )
   use rating <- decode.field("rating", decode.optional(user_rating_decoder()))
+  use first_profile_audio <- decode.field(
+    "first_profile_audio",
+    decode.optional(audio_decoder()),
+  )
   use unique_gift_colors <- decode.field(
     "unique_gift_colors",
     decode.optional(unique_gift_colors_decoder()),
@@ -5189,6 +5282,7 @@ pub fn chat_full_info_decoder() -> decode.Decoder(ChatFullInfo) {
     linked_chat_id: linked_chat_id,
     location: location,
     rating: rating,
+    first_profile_audio: first_profile_audio,
     unique_gift_colors: unique_gift_colors,
     paid_message_star_count: paid_message_star_count,
   ))
@@ -5217,6 +5311,7 @@ pub fn message_decoder() -> decode.Decoder(Message) {
     "sender_business_bot",
     decode.optional(user_decoder()),
   )
+  use sender_tag <- decode.field("sender_tag", decode.optional(decode.string))
   use date <- decode.field("date", decode.int)
   use business_connection_id <- decode.field(
     "business_connection_id",
@@ -5341,6 +5436,14 @@ pub fn message_decoder() -> decode.Decoder(Message) {
   use left_chat_member <- decode.field(
     "left_chat_member",
     decode.optional(user_decoder()),
+  )
+  use chat_owner_left <- decode.field(
+    "chat_owner_left",
+    decode.optional(chat_owner_left_decoder()),
+  )
+  use chat_owner_changed <- decode.field(
+    "chat_owner_changed",
+    decode.optional(chat_owner_changed_decoder()),
   )
   use new_chat_title <- decode.field(
     "new_chat_title",
@@ -5537,6 +5640,7 @@ pub fn message_decoder() -> decode.Decoder(Message) {
     sender_chat: sender_chat,
     sender_boost_count: sender_boost_count,
     sender_business_bot: sender_business_bot,
+    sender_tag: sender_tag,
     date: date,
     business_connection_id: business_connection_id,
     chat: chat,
@@ -5584,6 +5688,8 @@ pub fn message_decoder() -> decode.Decoder(Message) {
     location: location,
     new_chat_members: new_chat_members,
     left_chat_member: left_chat_member,
+    chat_owner_left: chat_owner_left,
+    chat_owner_changed: chat_owner_changed,
     new_chat_title: new_chat_title,
     new_chat_photo: new_chat_photo,
     delete_chat_photo: delete_chat_photo,
@@ -5663,6 +5769,11 @@ pub fn message_entity_decoder() -> decode.Decoder(MessageEntity) {
     "custom_emoji_id",
     decode.optional(decode.string),
   )
+  use unix_time <- decode.field("unix_time", decode.optional(decode.int))
+  use date_time_format <- decode.field(
+    "date_time_format",
+    decode.optional(decode.string),
+  )
   decode.success(MessageEntity(
     type_: type_,
     offset: offset,
@@ -5671,6 +5782,8 @@ pub fn message_entity_decoder() -> decode.Decoder(MessageEntity) {
     user: user,
     language: language,
     custom_emoji_id: custom_emoji_id,
+    unix_time: unix_time,
+    date_time_format: date_time_format,
   ))
 }
 
@@ -5959,6 +6072,23 @@ pub fn story_decoder() -> decode.Decoder(Story) {
   decode.success(Story(chat: chat, id: id))
 }
 
+pub fn video_quality_decoder() -> decode.Decoder(VideoQuality) {
+  use file_id <- decode.field("file_id", decode.string)
+  use file_unique_id <- decode.field("file_unique_id", decode.string)
+  use width <- decode.field("width", decode.int)
+  use height <- decode.field("height", decode.int)
+  use codec <- decode.field("codec", decode.string)
+  use file_size <- decode.field("file_size", decode.optional(decode.int))
+  decode.success(VideoQuality(
+    file_id: file_id,
+    file_unique_id: file_unique_id,
+    width: width,
+    height: height,
+    codec: codec,
+    file_size: file_size,
+  ))
+}
+
 pub fn video_decoder() -> decode.Decoder(Video) {
   use file_id <- decode.field("file_id", decode.string)
   use file_unique_id <- decode.field("file_unique_id", decode.string)
@@ -5977,6 +6107,10 @@ pub fn video_decoder() -> decode.Decoder(Video) {
     "start_timestamp",
     decode.optional(decode.int),
   )
+  use qualities <- decode.field(
+    "qualities",
+    decode.optional(decode.list(video_quality_decoder())),
+  )
   use file_name <- decode.field("file_name", decode.optional(decode.string))
   use mime_type <- decode.field("mime_type", decode.optional(decode.string))
   use file_size <- decode.field("file_size", decode.optional(decode.int))
@@ -5989,6 +6123,7 @@ pub fn video_decoder() -> decode.Decoder(Video) {
     thumbnail: thumbnail,
     cover: cover,
     start_timestamp: start_timestamp,
+    qualities: qualities,
     file_name: file_name,
     mime_type: mime_type,
     file_size: file_size,
@@ -6917,6 +7052,12 @@ pub fn user_profile_photos_decoder() -> decode.Decoder(UserProfilePhotos) {
   decode.success(UserProfilePhotos(total_count: total_count, photos: photos))
 }
 
+pub fn user_profile_audios_decoder() -> decode.Decoder(UserProfileAudios) {
+  use total_count <- decode.field("total_count", decode.int)
+  use audios <- decode.field("audios", decode.list(audio_decoder()))
+  decode.success(UserProfileAudios(total_count: total_count, audios: audios))
+}
+
 pub fn file_decoder() -> decode.Decoder(File) {
   use file_id <- decode.field("file_id", decode.string)
   use file_unique_id <- decode.field("file_unique_id", decode.string)
@@ -6969,6 +7110,11 @@ pub fn reply_keyboard_markup_decoder() -> decode.Decoder(ReplyKeyboardMarkup) {
 
 pub fn keyboard_button_decoder() -> decode.Decoder(KeyboardButton) {
   use text <- decode.field("text", decode.string)
+  use icon_custom_emoji_id <- decode.field(
+    "icon_custom_emoji_id",
+    decode.optional(decode.string),
+  )
+  use style <- decode.field("style", decode.optional(decode.string))
   use request_users <- decode.field(
     "request_users",
     decode.optional(keyboard_button_request_users_decoder()),
@@ -6995,6 +7141,8 @@ pub fn keyboard_button_decoder() -> decode.Decoder(KeyboardButton) {
   )
   decode.success(KeyboardButton(
     text: text,
+    icon_custom_emoji_id: icon_custom_emoji_id,
+    style: style,
     request_users: request_users,
     request_chat: request_chat,
     request_contact: request_contact,
@@ -7116,6 +7264,11 @@ pub fn inline_keyboard_markup_decoder() -> decode.Decoder(InlineKeyboardMarkup) 
 
 pub fn inline_keyboard_button_decoder() -> decode.Decoder(InlineKeyboardButton) {
   use text <- decode.field("text", decode.string)
+  use icon_custom_emoji_id <- decode.field(
+    "icon_custom_emoji_id",
+    decode.optional(decode.string),
+  )
+  use style <- decode.field("style", decode.optional(decode.string))
   use url <- decode.field("url", decode.optional(decode.string))
   use callback_data <- decode.field(
     "callback_data",
@@ -7152,6 +7305,8 @@ pub fn inline_keyboard_button_decoder() -> decode.Decoder(InlineKeyboardButton) 
   use pay <- decode.field("pay", decode.optional(decode.bool))
   decode.success(InlineKeyboardButton(
     text: text,
+    icon_custom_emoji_id: icon_custom_emoji_id,
+    style: style,
     url: url,
     callback_data: callback_data,
     web_app: web_app,
@@ -7352,6 +7507,10 @@ pub fn chat_administrator_rights_decoder() -> decode.Decoder(
     "can_manage_direct_messages",
     decode.optional(decode.bool),
   )
+  use can_manage_tags <- decode.field(
+    "can_manage_tags",
+    decode.optional(decode.bool),
+  )
   decode.success(ChatAdministratorRights(
     is_anonymous: is_anonymous,
     can_manage_chat: can_manage_chat,
@@ -7369,6 +7528,7 @@ pub fn chat_administrator_rights_decoder() -> decode.Decoder(
     can_pin_messages: can_pin_messages,
     can_manage_topics: can_manage_topics,
     can_manage_direct_messages: can_manage_direct_messages,
+    can_manage_tags: can_manage_tags,
   ))
 }
 
@@ -7458,6 +7618,10 @@ pub fn chat_member_administrator_decoder() -> decode.Decoder(
     "can_manage_direct_messages",
     decode.optional(decode.bool),
   )
+  use can_manage_tags <- decode.field(
+    "can_manage_tags",
+    decode.optional(decode.bool),
+  )
   use custom_title <- decode.field(
     "custom_title",
     decode.optional(decode.string),
@@ -7482,16 +7646,19 @@ pub fn chat_member_administrator_decoder() -> decode.Decoder(
     can_pin_messages: can_pin_messages,
     can_manage_topics: can_manage_topics,
     can_manage_direct_messages: can_manage_direct_messages,
+    can_manage_tags: can_manage_tags,
     custom_title: custom_title,
   ))
 }
 
 pub fn chat_member_member_decoder() -> decode.Decoder(ChatMemberMember) {
   use status <- decode.field("status", decode.string)
+  use tag <- decode.field("tag", decode.optional(decode.string))
   use user <- decode.field("user", user_decoder())
   use until_date <- decode.field("until_date", decode.optional(decode.int))
   decode.success(ChatMemberMember(
     status: status,
+    tag: tag,
     user: user,
     until_date: until_date,
   ))
@@ -7499,6 +7666,7 @@ pub fn chat_member_member_decoder() -> decode.Decoder(ChatMemberMember) {
 
 pub fn chat_member_restricted_decoder() -> decode.Decoder(ChatMemberRestricted) {
   use status <- decode.field("status", decode.string)
+  use tag <- decode.field("tag", decode.optional(decode.string))
   use user <- decode.field("user", user_decoder())
   use is_member <- decode.field("is_member", decode.bool)
   use can_send_messages <- decode.field("can_send_messages", decode.bool)
@@ -7517,6 +7685,7 @@ pub fn chat_member_restricted_decoder() -> decode.Decoder(ChatMemberRestricted) 
     "can_add_web_page_previews",
     decode.bool,
   )
+  use can_edit_tag <- decode.field("can_edit_tag", decode.bool)
   use can_change_info <- decode.field("can_change_info", decode.bool)
   use can_invite_users <- decode.field("can_invite_users", decode.bool)
   use can_pin_messages <- decode.field("can_pin_messages", decode.bool)
@@ -7524,6 +7693,7 @@ pub fn chat_member_restricted_decoder() -> decode.Decoder(ChatMemberRestricted) 
   use until_date <- decode.field("until_date", decode.int)
   decode.success(ChatMemberRestricted(
     status: status,
+    tag: tag,
     user: user,
     is_member: is_member,
     can_send_messages: can_send_messages,
@@ -7536,6 +7706,7 @@ pub fn chat_member_restricted_decoder() -> decode.Decoder(ChatMemberRestricted) 
     can_send_polls: can_send_polls,
     can_send_other_messages: can_send_other_messages,
     can_add_web_page_previews: can_add_web_page_previews,
+    can_edit_tag: can_edit_tag,
     can_change_info: can_change_info,
     can_invite_users: can_invite_users,
     can_pin_messages: can_pin_messages,
@@ -7622,6 +7793,7 @@ pub fn chat_permissions_decoder() -> decode.Decoder(ChatPermissions) {
     "can_add_web_page_previews",
     decode.optional(decode.bool),
   )
+  use can_edit_tag <- decode.field("can_edit_tag", decode.optional(decode.bool))
   use can_change_info <- decode.field(
     "can_change_info",
     decode.optional(decode.bool),
@@ -7649,6 +7821,7 @@ pub fn chat_permissions_decoder() -> decode.Decoder(ChatPermissions) {
     can_send_polls: can_send_polls,
     can_send_other_messages: can_send_other_messages,
     can_add_web_page_previews: can_add_web_page_previews,
+    can_edit_tag: can_edit_tag,
     can_change_info: can_change_info,
     can_invite_users: can_invite_users,
     can_pin_messages: can_pin_messages,
@@ -8002,10 +8175,12 @@ pub fn unique_gift_model_decoder() -> decode.Decoder(UniqueGiftModel) {
   use name <- decode.field("name", decode.string)
   use sticker <- decode.field("sticker", sticker_decoder())
   use rarity_per_mille <- decode.field("rarity_per_mille", decode.int)
+  use rarity <- decode.field("rarity", decode.optional(decode.string))
   decode.success(UniqueGiftModel(
     name: name,
     sticker: sticker,
     rarity_per_mille: rarity_per_mille,
+    rarity: rarity,
   ))
 }
 
@@ -8087,6 +8262,7 @@ pub fn unique_gift_decoder() -> decode.Decoder(UniqueGift) {
   use symbol <- decode.field("symbol", unique_gift_symbol_decoder())
   use backdrop <- decode.field("backdrop", unique_gift_backdrop_decoder())
   use is_premium <- decode.field("is_premium", decode.optional(decode.bool))
+  use is_burned <- decode.field("is_burned", decode.optional(decode.bool))
   use is_from_blockchain <- decode.field(
     "is_from_blockchain",
     decode.optional(decode.bool),
@@ -8108,6 +8284,7 @@ pub fn unique_gift_decoder() -> decode.Decoder(UniqueGift) {
     symbol: symbol,
     backdrop: backdrop,
     is_premium: is_premium,
+    is_burned: is_burned,
     is_from_blockchain: is_from_blockchain,
     colors: colors,
     publisher_chat: publisher_chat,
@@ -8547,6 +8724,16 @@ pub fn chat_boost_removed_decoder() -> decode.Decoder(ChatBoostRemoved) {
     remove_date: remove_date,
     source: source,
   ))
+}
+
+pub fn chat_owner_left_decoder() -> decode.Decoder(ChatOwnerLeft) {
+  use new_owner <- decode.field("new_owner", decode.optional(user_decoder()))
+  decode.success(ChatOwnerLeft(new_owner: new_owner))
+}
+
+pub fn chat_owner_changed_decoder() -> decode.Decoder(ChatOwnerChanged) {
+  use new_owner <- decode.field("new_owner", user_decoder())
+  decode.success(ChatOwnerChanged(new_owner: new_owner))
 }
 
 pub fn user_chat_boosts_decoder() -> decode.Decoder(UserChatBoosts) {
@@ -10877,6 +11064,10 @@ pub fn encode_user(user: User) -> Json {
     ),
     #("has_main_web_app", json.nullable(user.has_main_web_app, json.bool)),
     #("has_topics_enabled", json.nullable(user.has_topics_enabled, json.bool)),
+    #(
+      "allows_users_to_create_topics",
+      json.nullable(user.allows_users_to_create_topics, json.bool),
+    ),
   ])
 }
 
@@ -11043,6 +11234,10 @@ pub fn encode_chat_full_info(chat_full_info: ChatFullInfo) -> Json {
     #("location", json.nullable(chat_full_info.location, encode_chat_location)),
     #("rating", json.nullable(chat_full_info.rating, encode_user_rating)),
     #(
+      "first_profile_audio",
+      json.nullable(chat_full_info.first_profile_audio, encode_audio),
+    ),
+    #(
       "unique_gift_colors",
       json.nullable(
         chat_full_info.unique_gift_colors,
@@ -11071,6 +11266,7 @@ pub fn encode_message(message: Message) -> Json {
       "sender_business_bot",
       json.nullable(message.sender_business_bot, encode_user),
     ),
+    #("sender_tag", json.nullable(message.sender_tag, json.string)),
     #("date", json.int(message.date)),
     #(
       "business_connection_id",
@@ -11160,6 +11356,14 @@ pub fn encode_message(message: Message) -> Json {
       json.nullable(message.new_chat_members, json.array(_, encode_user)),
     ),
     #("left_chat_member", json.nullable(message.left_chat_member, encode_user)),
+    #(
+      "chat_owner_left",
+      json.nullable(message.chat_owner_left, encode_chat_owner_left),
+    ),
+    #(
+      "chat_owner_changed",
+      json.nullable(message.chat_owner_changed, encode_chat_owner_changed),
+    ),
     #("new_chat_title", json.nullable(message.new_chat_title, json.string)),
     #(
       "new_chat_photo",
@@ -11393,6 +11597,11 @@ pub fn encode_message_entity(message_entity: MessageEntity) -> Json {
       "custom_emoji_id",
       json.nullable(message_entity.custom_emoji_id, json.string),
     ),
+    #("unix_time", json.nullable(message_entity.unix_time, json.int)),
+    #(
+      "date_time_format",
+      json.nullable(message_entity.date_time_format, json.string),
+    ),
   ])
 }
 
@@ -11609,6 +11818,17 @@ pub fn encode_story(story: Story) -> Json {
   ])
 }
 
+pub fn encode_video_quality(video_quality: VideoQuality) -> Json {
+  json_object_filter_nulls([
+    #("file_id", json.string(video_quality.file_id)),
+    #("file_unique_id", json.string(video_quality.file_unique_id)),
+    #("width", json.int(video_quality.width)),
+    #("height", json.int(video_quality.height)),
+    #("codec", json.string(video_quality.codec)),
+    #("file_size", json.nullable(video_quality.file_size, json.int)),
+  ])
+}
+
 pub fn encode_video(video: Video) -> Json {
   json_object_filter_nulls([
     #("file_id", json.string(video.file_id)),
@@ -11619,6 +11839,10 @@ pub fn encode_video(video: Video) -> Json {
     #("thumbnail", json.nullable(video.thumbnail, encode_photo_size)),
     #("cover", json.nullable(video.cover, json.array(_, encode_photo_size))),
     #("start_timestamp", json.nullable(video.start_timestamp, json.int)),
+    #(
+      "qualities",
+      json.nullable(video.qualities, json.array(_, encode_video_quality)),
+    ),
     #("file_name", json.nullable(video.file_name, json.string)),
     #("mime_type", json.nullable(video.mime_type, json.string)),
     #("file_size", json.nullable(video.file_size, json.int)),
@@ -12469,6 +12693,15 @@ pub fn encode_user_profile_photos(
   ])
 }
 
+pub fn encode_user_profile_audios(
+  user_profile_audios: UserProfileAudios,
+) -> Json {
+  json_object_filter_nulls([
+    #("total_count", json.int(user_profile_audios.total_count)),
+    #("audios", json.array(_, encode_audio)(user_profile_audios.audios)),
+  ])
+}
+
 pub fn encode_file(file: File) -> Json {
   json_object_filter_nulls([
     #("file_id", json.string(file.file_id)),
@@ -12519,6 +12752,11 @@ pub fn encode_reply_keyboard_markup(
 pub fn encode_keyboard_button(keyboard_button: KeyboardButton) -> Json {
   json_object_filter_nulls([
     #("text", json.string(keyboard_button.text)),
+    #(
+      "icon_custom_emoji_id",
+      json.nullable(keyboard_button.icon_custom_emoji_id, json.string),
+    ),
+    #("style", json.nullable(keyboard_button.style, json.string)),
     #(
       "request_users",
       json.nullable(
@@ -12675,6 +12913,11 @@ pub fn encode_inline_keyboard_button(
 ) -> Json {
   json_object_filter_nulls([
     #("text", json.string(inline_keyboard_button.text)),
+    #(
+      "icon_custom_emoji_id",
+      json.nullable(inline_keyboard_button.icon_custom_emoji_id, json.string),
+    ),
+    #("style", json.nullable(inline_keyboard_button.style, json.string)),
     #("url", json.nullable(inline_keyboard_button.url, json.string)),
     #(
       "callback_data",
@@ -12888,6 +13131,10 @@ pub fn encode_chat_administrator_rights(
         json.bool,
       ),
     ),
+    #(
+      "can_manage_tags",
+      json.nullable(chat_administrator_rights.can_manage_tags, json.bool),
+    ),
   ])
 }
 
@@ -12990,6 +13237,10 @@ pub fn encode_chat_member_administrator(
       ),
     ),
     #(
+      "can_manage_tags",
+      json.nullable(chat_member_administrator.can_manage_tags, json.bool),
+    ),
+    #(
       "custom_title",
       json.nullable(chat_member_administrator.custom_title, json.string),
     ),
@@ -12999,6 +13250,7 @@ pub fn encode_chat_member_administrator(
 pub fn encode_chat_member_member(chat_member_member: ChatMemberMember) -> Json {
   json_object_filter_nulls([
     #("status", json.string(chat_member_member.status)),
+    #("tag", json.nullable(chat_member_member.tag, json.string)),
     #("user", encode_user(chat_member_member.user)),
     #("until_date", json.nullable(chat_member_member.until_date, json.int)),
   ])
@@ -13009,6 +13261,7 @@ pub fn encode_chat_member_restricted(
 ) -> Json {
   json_object_filter_nulls([
     #("status", json.string(chat_member_restricted.status)),
+    #("tag", json.nullable(chat_member_restricted.tag, json.string)),
     #("user", encode_user(chat_member_restricted.user)),
     #("is_member", json.bool(chat_member_restricted.is_member)),
     #("can_send_messages", json.bool(chat_member_restricted.can_send_messages)),
@@ -13036,6 +13289,7 @@ pub fn encode_chat_member_restricted(
       "can_add_web_page_previews",
       json.bool(chat_member_restricted.can_add_web_page_previews),
     ),
+    #("can_edit_tag", json.bool(chat_member_restricted.can_edit_tag)),
     #("can_change_info", json.bool(chat_member_restricted.can_change_info)),
     #("can_invite_users", json.bool(chat_member_restricted.can_invite_users)),
     #("can_pin_messages", json.bool(chat_member_restricted.can_pin_messages)),
@@ -13115,6 +13369,7 @@ pub fn encode_chat_permissions(chat_permissions: ChatPermissions) -> Json {
       "can_add_web_page_previews",
       json.nullable(chat_permissions.can_add_web_page_previews, json.bool),
     ),
+    #("can_edit_tag", json.nullable(chat_permissions.can_edit_tag, json.bool)),
     #(
       "can_change_info",
       json.nullable(chat_permissions.can_change_info, json.bool),
@@ -13447,6 +13702,7 @@ pub fn encode_unique_gift_model(unique_gift_model: UniqueGiftModel) -> Json {
     #("name", json.string(unique_gift_model.name)),
     #("sticker", encode_sticker(unique_gift_model.sticker)),
     #("rarity_per_mille", json.int(unique_gift_model.rarity_per_mille)),
+    #("rarity", json.nullable(unique_gift_model.rarity, json.string)),
   ])
 }
 
@@ -13518,6 +13774,7 @@ pub fn encode_unique_gift(unique_gift: UniqueGift) -> Json {
     #("symbol", encode_unique_gift_symbol(unique_gift.symbol)),
     #("backdrop", encode_unique_gift_backdrop(unique_gift.backdrop)),
     #("is_premium", json.nullable(unique_gift.is_premium, json.bool)),
+    #("is_burned", json.nullable(unique_gift.is_burned, json.bool)),
     #(
       "is_from_blockchain",
       json.nullable(unique_gift.is_from_blockchain, json.bool),
@@ -13894,6 +14151,18 @@ pub fn encode_chat_boost_removed(chat_boost_removed: ChatBoostRemoved) -> Json {
     #("boost_id", json.string(chat_boost_removed.boost_id)),
     #("remove_date", json.int(chat_boost_removed.remove_date)),
     #("source", encode_chat_boost_source(chat_boost_removed.source)),
+  ])
+}
+
+pub fn encode_chat_owner_left(chat_owner_left: ChatOwnerLeft) -> Json {
+  json_object_filter_nulls([
+    #("new_owner", json.nullable(chat_owner_left.new_owner, encode_user)),
+  ])
+}
+
+pub fn encode_chat_owner_changed(chat_owner_changed: ChatOwnerChanged) -> Json {
+  json_object_filter_nulls([
+    #("new_owner", encode_user(chat_owner_changed.new_owner)),
   ])
 }
 
