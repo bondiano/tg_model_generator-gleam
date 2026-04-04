@@ -418,6 +418,15 @@
             "ChatBoostRemoved"
           ],
           "name": "removed_chat_boost"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. A new bot was created to be managed by the bot or token of a bot was changed",
+          "type": [
+            "ManagedBotUpdated"
+          ],
+          "name": "managed_bot"
         }
       ],
       "description": "This object represents an incoming update.\nAt most one of the optional parameters can be present in any given update.",
@@ -649,6 +658,15 @@
             "bool"
           ],
           "name": "allows_users_to_create_topics"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if other bots can be created to be controlled by the bot. Returned only in getMe.",
+          "type": [
+            "bool"
+          ],
+          "name": "can_manage_bots"
         }
       ],
       "description": "This object represents a Telegram user or bot.",
@@ -1379,6 +1397,15 @@
         {
           "optional": true,
           "one_of": null,
+          "description": "Optional. Persistent identifier of the specific poll option that is being replied to",
+          "type": [
+            "str"
+          ],
+          "name": "reply_to_poll_option_id"
+        },
+        {
+          "optional": true,
+          "one_of": null,
           "description": "Optional. Bot through which the message was sent",
           "type": [
             "User"
@@ -2069,11 +2096,38 @@
         {
           "optional": true,
           "one_of": null,
+          "description": "Optional. Service message: user created a bot that will be managed by the current bot",
+          "type": [
+            "ManagedBotCreated"
+          ],
+          "name": "managed_bot_created"
+        },
+        {
+          "optional": true,
+          "one_of": null,
           "description": "Optional. Service message: the price for paid messages has changed in the chat",
           "type": [
             "PaidMessagePriceChanged"
           ],
           "name": "paid_message_price_changed"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Service message: answer option was added to a poll",
+          "type": [
+            "PollOptionAdded"
+          ],
+          "name": "poll_option_added"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Service message: answer option was deleted from a poll",
+          "type": [
+            "PollOptionDeleted"
+          ],
+          "name": "poll_option_deleted"
         },
         {
           "optional": true,
@@ -2327,7 +2381,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are kept in quotes.",
+          "description": "Optional. Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are kept in quotes.",
           "type": [
             "array",
             [
@@ -2625,7 +2679,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message.",
+          "description": "Optional. Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities. The message will fail to send if the quote isn't found in the original message.",
           "type": [
             "str"
           ],
@@ -2669,6 +2723,15 @@
             "int"
           ],
           "name": "checklist_task_id"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Persistent identifier of the specific poll option to be replied to",
+          "type": [
+            "str"
+          ],
+          "name": "poll_option_id"
         }
       ],
       "description": "Describes reply parameters for the message that is being sent.",
@@ -3633,6 +3696,15 @@
         {
           "optional": false,
           "one_of": null,
+          "description": "Unique identifier of the option, persistent on option addition and deletion",
+          "type": [
+            "str"
+          ],
+          "name": "persistent_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
           "description": "Option text, 1-100 characters",
           "type": [
             "str"
@@ -3654,11 +3726,38 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Number of users that voted for this option",
+          "description": "Number of users who voted for this option; may be 0 if unknown",
           "type": [
             "int"
           ],
           "name": "voter_count"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. User who added the option; omitted if the option wasn't added by a user after poll creation",
+          "type": [
+            "User"
+          ],
+          "name": "added_by_user"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Chat that added the option; omitted if the option wasn't added by a chat after poll creation",
+          "type": [
+            "Chat"
+          ],
+          "name": "added_by_chat"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Point in time (Unix timestamp) when the option was added; omitted if the option existed in the original poll",
+          "type": [
+            "int"
+          ],
+          "name": "addition_date"
         }
       ],
       "description": "This object contains information about one answer option in a poll.",
@@ -3740,6 +3839,18 @@
             ]
           ],
           "name": "option_ids"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Persistent identifiers of the chosen answer options. May be empty if the vote was retracted.",
+          "type": [
+            "array",
+            [
+              "str"
+            ]
+          ],
+          "name": "option_persistent_ids"
         }
       ],
       "description": "This object represents an answer of a user in a non-anonymous poll.",
@@ -3835,13 +3946,25 @@
           "name": "allows_multiple_answers"
         },
         {
+          "optional": false,
+          "one_of": null,
+          "description": "True, if the poll allows to change the chosen answer options",
+          "type": [
+            "bool"
+          ],
+          "name": "allows_revoting"
+        },
+        {
           "optional": true,
           "one_of": null,
-          "description": "Optional. 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot.",
+          "description": "Optional. Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot.",
           "type": [
-            "int"
+            "array",
+            [
+              "int"
+            ]
           ],
-          "name": "correct_option_id"
+          "name": "correct_option_ids"
         },
         {
           "optional": true,
@@ -3881,6 +4004,27 @@
             "int"
           ],
           "name": "close_date"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Description of the poll; for polls inside the Message object only",
+          "type": [
+            "str"
+          ],
+          "name": "description"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Special entities like usernames, URLs, bot commands, etc. that appear in the description",
+          "type": [
+            "array",
+            [
+              "MessageEntity"
+            ]
+          ],
+          "name": "description_entities"
         }
       ],
       "description": "This object contains information about a poll.",
@@ -4038,7 +4182,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. List of special entities that appear in the text, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are allowed.",
+          "description": "Optional. List of special entities that appear in the text, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are allowed.",
           "type": [
             "array",
             [
@@ -4074,7 +4218,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. List of special entities that appear in the title, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are allowed.",
+          "description": "Optional. List of special entities that appear in the title, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are allowed.",
           "type": [
             "array",
             [
@@ -4383,6 +4527,135 @@
       ],
       "description": "This object represents a service message about a change in auto-delete timer settings.",
       "name": "MessageAutoDeleteTimerChanged"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Information about the bot. The bot's token can be fetched using the method getManagedBotToken.",
+          "type": [
+            "User"
+          ],
+          "name": "bot"
+        }
+      ],
+      "description": "This object contains information about the bot that was created to be managed by the current bot.",
+      "name": "ManagedBotCreated"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "User that created the bot",
+          "type": [
+            "User"
+          ],
+          "name": "user"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Information about the bot. Token of the bot can be fetched using the method getManagedBotToken.",
+          "type": [
+            "User"
+          ],
+          "name": "bot"
+        }
+      ],
+      "description": "This object contains information about the creation or token update of a bot that is managed by the current bot.",
+      "name": "ManagedBotUpdated"
+    },
+    {
+      "params": [
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Message containing the poll to which the option was added, if known. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.",
+          "type": [
+            "MaybeInaccessibleMessage"
+          ],
+          "name": "poll_message"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Unique identifier of the added option",
+          "type": [
+            "str"
+          ],
+          "name": "option_persistent_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Option text",
+          "type": [
+            "str"
+          ],
+          "name": "option_text"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Special entities that appear in the option_text",
+          "type": [
+            "array",
+            [
+              "MessageEntity"
+            ]
+          ],
+          "name": "option_text_entities"
+        }
+      ],
+      "description": "Describes a service message about an option added to a poll.",
+      "name": "PollOptionAdded"
+    },
+    {
+      "params": [
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Message containing the poll from which the option was deleted, if known. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.",
+          "type": [
+            "MaybeInaccessibleMessage"
+          ],
+          "name": "poll_message"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Unique identifier of the deleted option",
+          "type": [
+            "str"
+          ],
+          "name": "option_persistent_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Option text",
+          "type": [
+            "str"
+          ],
+          "name": "option_text"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Special entities that appear in the option_text",
+          "type": [
+            "array",
+            [
+              "MessageEntity"
+            ]
+          ],
+          "name": "option_text_entities"
+        }
+      ],
+      "description": "Describes a service message about an option deleted from a poll.",
+      "name": "PollOptionDeleted"
     },
     {
       "params": [
@@ -5838,6 +6111,15 @@
         {
           "optional": true,
           "one_of": null,
+          "description": "Optional. If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @BotFather Mini App. Available in private chats only.",
+          "type": [
+            "KeyboardButtonRequestManagedBot"
+          ],
+          "name": "request_managed_bot"
+        },
+        {
+          "optional": true,
+          "one_of": null,
           "description": "Optional. If True, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only.",
           "type": [
             "bool"
@@ -6048,6 +6330,39 @@
       ],
       "description": "This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the chat if appropriate. More about requesting chats ».",
       "name": "KeyboardButtonRequestChat"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Signed 32-bit identifier of the request. Must be unique within the message",
+          "type": [
+            "int"
+          ],
+          "name": "request_id"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Suggested name for the bot",
+          "type": [
+            "str"
+          ],
+          "name": "suggested_name"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Suggested username for the bot",
+          "type": [
+            "str"
+          ],
+          "name": "suggested_username"
+        }
+      ],
+      "description": "This object defines the parameters for the creation of a managed bot. Information about the created bot will be shared with the bot using the update managed_bot and a Message with the field managed_bot_created.",
+      "name": "KeyboardButtonRequestManagedBot"
     },
     {
       "params": [
@@ -10285,6 +10600,60 @@
         {
           "optional": true,
           "one_of": null,
+          "description": "Optional. Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message.",
+          "type": [
+            "str"
+          ],
+          "name": "inline_message_id"
+        }
+      ],
+      "description": "Describes an inline message sent by a Web App on behalf of a user.",
+      "name": "SentWebAppMessage"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Unique identifier of the prepared message",
+          "type": [
+            "str"
+          ],
+          "name": "id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used",
+          "type": [
+            "int"
+          ],
+          "name": "expiration_date"
+        }
+      ],
+      "description": "Describes an inline message to be sent by a user of a Mini App.",
+      "name": "PreparedInlineMessage"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Unique identifier of the keyboard button",
+          "type": [
+            "str"
+          ],
+          "name": "id"
+        }
+      ],
+      "description": "Describes a keyboard button to be used by a user of a Mini App.",
+      "name": "PreparedKeyboardButton"
+    },
+    {
+      "params": [
+        {
+          "optional": true,
+          "one_of": null,
           "description": "Optional. The group has been migrated to a supergroup with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.",
           "type": [
             "int"
@@ -14093,45 +14462,6 @@
       ],
       "description": "Represents a result of an inline query that was chosen by the user and sent to their chat partner.",
       "name": "ChosenInlineResult"
-    },
-    {
-      "params": [
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message.",
-          "type": [
-            "str"
-          ],
-          "name": "inline_message_id"
-        }
-      ],
-      "description": "Describes an inline message sent by a Web App on behalf of a user.",
-      "name": "SentWebAppMessage"
-    },
-    {
-      "params": [
-        {
-          "optional": false,
-          "one_of": null,
-          "description": "Unique identifier of the prepared message",
-          "type": [
-            "str"
-          ],
-          "name": "id"
-        },
-        {
-          "optional": false,
-          "one_of": null,
-          "description": "Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used",
-          "type": [
-            "int"
-          ],
-          "name": "expiration_date"
-        }
-      ],
-      "description": "Describes an inline message to be sent by a user of a Mini App.",
-      "name": "PreparedInlineMessage"
     },
     {
       "params": [
