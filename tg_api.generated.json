@@ -21,8 +21,9 @@
     {
       "discriminator": "type",
       "subtypes": [
-        "PaidMediaPreview",
+        "PaidMediaLivePhoto",
         "PaidMediaPhoto",
+        "PaidMediaPreview",
         "PaidMediaVideo"
       ],
       "name": "PaidMedia"
@@ -102,8 +103,9 @@
       "discriminator": "type",
       "subtypes": [
         "InputMediaAnimation",
-        "InputMediaDocument",
         "InputMediaAudio",
+        "InputMediaDocument",
+        "InputMediaLivePhoto",
         "InputMediaPhoto",
         "InputMediaVideo"
       ],
@@ -112,6 +114,7 @@
     {
       "discriminator": "type",
       "subtypes": [
+        "InputPaidMediaLivePhoto",
         "InputPaidMediaPhoto",
         "InputPaidMediaVideo"
       ],
@@ -287,6 +290,15 @@
         {
           "optional": true,
           "one_of": null,
+          "description": "Optional. New guest message. The bot can use the field Message.guest_query_id and the method answerGuestQuery to send a message in response.",
+          "type": [
+            "Message"
+          ],
+          "name": "guest_message"
+        },
+        {
+          "optional": true,
+          "one_of": null,
           "description": "Optional. A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify \"message_reaction\" in the list of allowed_updates to receive these updates. The update isn't received for reactions set by bots.",
           "type": [
             "MessageReactionUpdated"
@@ -332,7 +344,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. New incoming shipping query. Only for invoices with flexible price",
+          "description": "Optional. New incoming shipping query. Only for invoices with flexible price.",
           "type": [
             "ShippingQuery"
           ],
@@ -341,7 +353,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. New incoming pre-checkout query. Contains full information about checkout",
+          "description": "Optional. New incoming pre-checkout query. Contains full information about checkout.",
           "type": [
             "PreCheckoutQuery"
           ],
@@ -359,7 +371,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot",
+          "description": "Optional. New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot.",
           "type": [
             "Poll"
           ],
@@ -422,14 +434,14 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. A new bot was created to be managed by the bot or token of a bot was changed",
+          "description": "Optional. A new bot was created to be managed by the bot, or token or owner of a managed bot was changed",
           "type": [
             "ManagedBotUpdated"
           ],
           "name": "managed_bot"
         }
       ],
-      "description": "This object represents an incoming update.\nAt most one of the optional parameters can be present in any given update.",
+      "description": "This object represents an incoming update.\nAt most one of the optional fields can be present in any given update.",
       "name": "Update"
     },
     {
@@ -509,7 +521,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. A list of update types the bot is subscribed to. Defaults to all update types except chat_member",
+          "description": "Optional. A list of update types the bot is subscribed to. Defaults to all update types except chat_member, message_reaction, and message_reaction_count.",
           "type": [
             "array",
             [
@@ -617,6 +629,15 @@
         {
           "optional": true,
           "one_of": null,
+          "description": "Optional. True, if the bot supports guest queries from chats it is not a member of. Returned only in getMe.",
+          "type": [
+            "bool"
+          ],
+          "name": "supports_guest_queries"
+        },
+        {
+          "optional": true,
+          "one_of": null,
           "description": "Optional. True, if the bot supports inline queries. Returned only in getMe.",
           "type": [
             "bool"
@@ -626,7 +647,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. True, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in getMe.",
+          "description": "Optional. True, if the bot can be connected to a user account to manage it. Returned only in getMe.",
           "type": [
             "bool"
           ],
@@ -1211,7 +1232,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. The number of Telegram Stars a general user have to pay to send a message to the chat",
+          "description": "Optional. The number of Telegram Stars a general user has to pay to send a message to the chat",
           "type": [
             "int"
           ],
@@ -1226,7 +1247,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent",
+          "description": "Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.",
           "type": [
             "int"
           ],
@@ -1253,7 +1274,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats",
+          "description": "Optional. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats.",
           "type": [
             "User"
           ],
@@ -1303,6 +1324,15 @@
             "int"
           ],
           "name": "date"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.",
+          "type": [
+            "str"
+          ],
+          "name": "guest_query_id"
         },
         {
           "optional": true,
@@ -1411,6 +1441,24 @@
             "User"
           ],
           "name": "via_bot"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. For a message sent by a guest bot, this is the user whose original message triggered the bot's response",
+          "type": [
+            "User"
+          ],
+          "name": "guest_bot_caller_user"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. For a message sent by a guest bot, this is the chat whose original message triggered the bot's response",
+          "type": [
+            "Chat"
+          ],
+          "name": "guest_bot_caller_chat"
         },
         {
           "optional": true,
@@ -1526,7 +1574,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set",
+          "description": "Optional. Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set.",
           "type": [
             "Animation"
           ],
@@ -1549,6 +1597,15 @@
             "Document"
           ],
           "name": "document"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Message is a live photo, information about the live photo. For backward compatibility, when this field is set, the photo field will also be set.",
+          "type": [
+            "LivePhoto"
+          ],
+          "name": "live_photo"
         },
         {
           "optional": true,
@@ -1703,7 +1760,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Message is a venue, information about the venue. For backward compatibility, when this field is set, the location field will also be set",
+          "description": "Optional. Message is a venue, information about the venue. For backward compatibility, when this field is set, the location field will also be set.",
           "type": [
             "Venue"
           ],
@@ -2237,7 +2294,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Unique message identifier. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent",
+          "description": "Unique message identifier. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.",
           "type": [
             "int"
           ],
@@ -2285,7 +2342,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time)",
+          "description": "Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time).",
           "type": [
             "str"
           ],
@@ -2339,7 +2396,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. For “custom_emoji” only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker",
+          "description": "Optional. For “custom_emoji” only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker.",
           "type": [
             "str"
           ],
@@ -2476,6 +2533,15 @@
             "Document"
           ],
           "name": "document"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Message is a live photo, information about the live photo",
+          "type": [
+            "LivePhoto"
+          ],
+          "name": "live_photo"
         },
         {
           "optional": true,
@@ -2660,7 +2726,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.",
+          "description": "Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.",
           "type": [
             "int",
             "str"
@@ -3184,6 +3250,87 @@
     {
       "params": [
         {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Available sizes of the corresponding static photo",
+          "type": [
+            "array",
+            [
+              "PhotoSize"
+            ]
+          ],
+          "name": "photo"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Identifier for the video file which can be used to download or reuse the file",
+          "type": [
+            "str"
+          ],
+          "name": "file_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Unique identifier for the video file which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.",
+          "type": [
+            "str"
+          ],
+          "name": "file_unique_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Video width as defined by the sender",
+          "type": [
+            "int"
+          ],
+          "name": "width"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Video height as defined by the sender",
+          "type": [
+            "int"
+          ],
+          "name": "height"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Duration of the video in seconds as defined by the sender",
+          "type": [
+            "int"
+          ],
+          "name": "duration"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. MIME type of the file as defined by the sender",
+          "type": [
+            "str"
+          ],
+          "name": "mime_type"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.",
+          "type": [
+            "int"
+          ],
+          "name": "file_size"
+        }
+      ],
+      "description": "This object represents a live photo.",
+      "name": "LivePhoto"
+    },
+    {
+      "params": [
+        {
           "optional": false,
           "one_of": null,
           "description": "Chat that posted the story",
@@ -3528,6 +3675,57 @@
         {
           "optional": false,
           "one_of": null,
+          "description": "Type of the paid media, always “live_photo”",
+          "type": [
+            "str"
+          ],
+          "name": "type"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "The photo",
+          "type": [
+            "LivePhoto"
+          ],
+          "name": "live_photo"
+        }
+      ],
+      "description": "The paid media is a live photo.",
+      "name": "PaidMediaLivePhoto"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Type of the paid media, always “photo”",
+          "type": [
+            "str"
+          ],
+          "name": "type"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "The photo",
+          "type": [
+            "array",
+            [
+              "PhotoSize"
+            ]
+          ],
+          "name": "photo"
+        }
+      ],
+      "description": "The paid media is a photo.",
+      "name": "PaidMediaPhoto"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
           "description": "Type of the paid media, always “preview”",
           "type": [
             "str"
@@ -3564,33 +3762,6 @@
       ],
       "description": "The paid media isn't available before the payment.",
       "name": "PaidMediaPreview"
-    },
-    {
-      "params": [
-        {
-          "optional": false,
-          "one_of": null,
-          "description": "Type of the paid media, always “photo”",
-          "type": [
-            "str"
-          ],
-          "name": "type"
-        },
-        {
-          "optional": false,
-          "one_of": null,
-          "description": "The photo",
-          "type": [
-            "array",
-            [
-              "PhotoSize"
-            ]
-          ],
-          "name": "photo"
-        }
-      ],
-      "description": "The paid media is a photo.",
-      "name": "PaidMediaPhoto"
     },
     {
       "params": [
@@ -3694,6 +3865,96 @@
     {
       "params": [
         {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media is an animation, information about the animation",
+          "type": [
+            "Animation"
+          ],
+          "name": "animation"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media is an audio file, information about the file; currently, can't be received in a poll option",
+          "type": [
+            "Audio"
+          ],
+          "name": "audio"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media is a general file, information about the file; currently, can't be received in a poll option",
+          "type": [
+            "Document"
+          ],
+          "name": "document"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media is a live photo, information about the live photo",
+          "type": [
+            "LivePhoto"
+          ],
+          "name": "live_photo"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media is a shared location, information about the location",
+          "type": [
+            "Location"
+          ],
+          "name": "location"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media is a photo, available sizes of the photo",
+          "type": [
+            "array",
+            [
+              "PhotoSize"
+            ]
+          ],
+          "name": "photo"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media is a sticker, information about the sticker; currently, for poll options only",
+          "type": [
+            "Sticker"
+          ],
+          "name": "sticker"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media is a venue, information about the venue",
+          "type": [
+            "Venue"
+          ],
+          "name": "venue"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media is a video, information about the video",
+          "type": [
+            "Video"
+          ],
+          "name": "video"
+        }
+      ],
+      "description": "At most one of the optional fields can be present in any given object.",
+      "name": "PollMedia"
+    },
+    {
+      "params": [
+        {
           "optional": false,
           "one_of": null,
           "description": "Unique identifier of the option, persistent on option addition and deletion",
@@ -3722,6 +3983,177 @@
             ]
           ],
           "name": "text_entities"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media added to the poll option",
+          "type": [
+            "PollMedia"
+          ],
+          "name": "media"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Number of users who voted for this option; may be 0 if unknown",
+          "type": [
+            "int"
+          ],
+          "name": "voter_count"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. User who added the option; omitted if the option wasn't added by a user after poll creation",
+          "type": [
+            "User"
+          ],
+          "name": "added_by_user"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Chat that added the option; omitted if the option wasn't added by a chat after poll creation",
+          "type": [
+            "Chat"
+          ],
+          "name": "added_by_chat"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Point in time (Unix timestamp) when the option was added; omitted if the option existed in the original poll",
+          "type": [
+            "int"
+          ],
+          "name": "addition_date"
+        }
+      ],
+      "description": "This object represents the content of a poll description or a quiz explanation to be sent. It should be one of",
+      "name": "InputPollMedia"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Unique identifier of the option, persistent on option addition and deletion",
+          "type": [
+            "str"
+          ],
+          "name": "persistent_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Option text, 1-100 characters",
+          "type": [
+            "str"
+          ],
+          "name": "text"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts",
+          "type": [
+            "array",
+            [
+              "MessageEntity"
+            ]
+          ],
+          "name": "text_entities"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media added to the poll option",
+          "type": [
+            "PollMedia"
+          ],
+          "name": "media"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Number of users who voted for this option; may be 0 if unknown",
+          "type": [
+            "int"
+          ],
+          "name": "voter_count"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. User who added the option; omitted if the option wasn't added by a user after poll creation",
+          "type": [
+            "User"
+          ],
+          "name": "added_by_user"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Chat that added the option; omitted if the option wasn't added by a chat after poll creation",
+          "type": [
+            "Chat"
+          ],
+          "name": "added_by_chat"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Point in time (Unix timestamp) when the option was added; omitted if the option existed in the original poll",
+          "type": [
+            "int"
+          ],
+          "name": "addition_date"
+        }
+      ],
+      "description": "This object represents the content of a poll option to be sent. It should be one of",
+      "name": "InputPollOptionMedia"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Unique identifier of the option, persistent on option addition and deletion",
+          "type": [
+            "str"
+          ],
+          "name": "persistent_id"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Option text, 1-100 characters",
+          "type": [
+            "str"
+          ],
+          "name": "text"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts",
+          "type": [
+            "array",
+            [
+              "MessageEntity"
+            ]
+          ],
+          "name": "text_entities"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media added to the poll option",
+          "type": [
+            "PollMedia"
+          ],
+          "name": "media"
         },
         {
           "optional": false,
@@ -3777,7 +4209,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed",
+          "description": "Optional. Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed.",
           "type": [
             "str"
           ],
@@ -3786,7 +4218,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of text_parse_mode",
+          "description": "Optional. A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of text_parse_mode.",
           "type": [
             "array",
             [
@@ -3794,6 +4226,15 @@
             ]
           ],
           "name": "text_entities"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media added to the poll option",
+          "type": [
+            "InputPollOptionMedia"
+          ],
+          "name": "media"
         }
       ],
       "description": "This object contains information about one answer option in a poll to be sent.",
@@ -3955,6 +4396,27 @@
           "name": "allows_revoting"
         },
         {
+          "optional": false,
+          "one_of": null,
+          "description": "True if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours",
+          "type": [
+            "bool"
+          ],
+          "name": "members_only"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code “FT” is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll.",
+          "type": [
+            "array",
+            [
+              "str"
+            ]
+          ],
+          "name": "country_codes"
+        },
+        {
           "optional": true,
           "one_of": null,
           "description": "Optional. Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot.",
@@ -3986,6 +4448,15 @@
             ]
           ],
           "name": "explanation_entities"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media added to the quiz explanation",
+          "type": [
+            "PollMedia"
+          ],
+          "name": "explanation_media"
         },
         {
           "optional": true,
@@ -4025,6 +4496,15 @@
             ]
           ],
           "name": "description_entities"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Media added to the poll description; for polls inside the Message object only",
+          "type": [
+            "PollMedia"
+          ],
+          "name": "media"
         }
       ],
       "description": "This object contains information about a poll.",
@@ -4392,7 +4872,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Venue location. Can't be a live location",
+          "description": "Venue location. Can't be a live location.",
           "type": [
             "Location"
           ],
@@ -4564,7 +5044,7 @@
           "name": "bot"
         }
       ],
-      "description": "This object contains information about the creation or token update of a bot that is managed by the current bot.",
+      "description": "This object contains information about the creation, token update, or owner update of a bot that is managed by the current bot.",
       "name": "ManagedBotUpdated"
     },
     {
@@ -4890,7 +5370,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. True, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only",
+          "description": "Optional. True, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only.",
           "type": [
             "bool"
           ],
@@ -5102,7 +5582,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Information about users shared with the bot.",
+          "description": "Information about users shared with the bot",
           "type": [
             "array",
             [
@@ -5138,7 +5618,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Title of the chat, if the title was requested by the bot.",
+          "description": "Optional. Title of the chat, if the title was requested by the bot",
           "type": [
             "str"
           ],
@@ -5147,7 +5627,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Username of the chat, if the username was requested by the bot and available.",
+          "description": "Optional. Username of the chat, if the username was requested by the bot and available",
           "type": [
             "str"
           ],
@@ -5392,7 +5872,7 @@
             "XTR",
             "TON"
           ],
-          "description": "Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins",
+          "description": "Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins.",
           "type": [
             "str"
           ],
@@ -5728,7 +6208,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. URL to use for the link preview. If empty, then the first URL found in the message text will be used",
+          "description": "Optional. URL to use for the link preview. If empty, then the first URL found in the message text will be used.",
           "type": [
             "str"
           ],
@@ -5773,7 +6253,7 @@
             "XTR",
             "TON"
           ],
-          "description": "Currency in which the post will be paid. Currently, must be one of “XTR” for Telegram Stars or “TON” for toncoins",
+          "description": "Currency in which the post will be paid. Currently, must be one of “XTR” for Telegram Stars or “TON” for toncoins.",
           "type": [
             "str"
           ],
@@ -5867,7 +6347,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Information about the user that created the topic. Currently, it is always present",
+          "description": "Optional. Information about the user that created the topic. Currently, it is always present.",
           "type": [
             "User"
           ],
@@ -6054,7 +6534,7 @@
           "name": "selective"
         }
       ],
-      "description": "This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a Telegram Business account.",
+      "description": "This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a business account.",
       "name": "ReplyKeyboardMarkup"
     },
     {
@@ -6062,7 +6542,7 @@
         {
           "optional": false,
           "one_of": [],
-          "description": "Text of the button. If none of the fields other than text, icon_custom_emoji_id, and style are used, it will be sent as a message when the button is pressed",
+          "description": "Text of the button. If none of the fields other than text, icon_custom_emoji_id, and style are used, it will be sent as a message when the button is pressed.",
           "type": [
             "str"
           ],
@@ -6162,7 +6642,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Signed 32-bit identifier of the request that will be received back in the UsersShared object. Must be unique within the message",
+          "description": "Signed 32-bit identifier of the request that will be received back in the UsersShared object. Must be unique within the message.",
           "type": [
             "int"
           ],
@@ -6231,7 +6711,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Signed 32-bit identifier of the request, which will be received back in the ChatShared object. Must be unique within the message",
+          "description": "Signed 32-bit identifier of the request, which will be received back in the ChatShared object. Must be unique within the message.",
           "type": [
             "int"
           ],
@@ -6240,7 +6720,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Pass True to request a channel chat, pass False to request a group or a supergroup chat.",
+          "description": "Pass True to request a channel chat, pass False to request a group or a supergroup chat",
           "type": [
             "bool"
           ],
@@ -6336,7 +6816,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Signed 32-bit identifier of the request. Must be unique within the message",
+          "description": "Signed 32-bit identifier of the request. Must be unique within the message.",
           "type": [
             "int"
           ],
@@ -6400,7 +6880,7 @@
           "name": "selective"
         }
       ],
-      "description": "Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a Telegram Business account.",
+      "description": "Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a business account.",
       "name": "ReplyKeyboardRemove"
     },
     {
@@ -6478,7 +6958,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a Telegram Business account.",
+          "description": "Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.",
           "type": [
             "WebAppInfo"
           ],
@@ -6496,7 +6976,7 @@
         {
           "optional": true,
           "one_of": [],
-          "description": "Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.",
+          "description": "Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a business account.",
           "type": [
             "str"
           ],
@@ -6505,7 +6985,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.\n\nThis offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a Telegram Business account.",
+          "description": "Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.\n\nThis offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a business account.",
           "type": [
             "str"
           ],
@@ -6514,7 +6994,7 @@
         {
           "optional": true,
           "one_of": [],
-          "description": "Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.",
+          "description": "Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a business account.",
           "type": [
             "SwitchInlineQueryChosenChat"
           ],
@@ -6523,7 +7003,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Description of the button that copies the specified text to the clipboard.",
+          "description": "Optional. Description of the button that copies the specified text to the clipboard",
           "type": [
             "CopyTextButton"
           ],
@@ -6565,7 +7045,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. New text of the button in forwarded messages.",
+          "description": "Optional. New text of the button in forwarded messages",
           "type": [
             "str"
           ],
@@ -6583,7 +7063,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Pass True to request the permission for your bot to send messages to the user.",
+          "description": "Optional. Pass True to request the permission for your bot to send messages to the user",
           "type": [
             "bool"
           ],
@@ -6598,7 +7078,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted",
+          "description": "Optional. The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted.",
           "type": [
             "str"
           ],
@@ -6691,7 +7171,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Identifier of the message sent via the bot in inline mode, that originated the query.",
+          "description": "Optional. Identifier of the message sent via the bot in inline mode, that originated the query",
           "type": [
             "str"
           ],
@@ -6758,7 +7238,7 @@
           "name": "selective"
         }
       ],
-      "description": "Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a Telegram Business account.",
+      "description": "Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a user account.",
       "name": "ForceReply"
     },
     {
@@ -7117,7 +7597,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Chat invite link, which was used by the user to join the chat; for joining by invite link events only.",
+          "description": "Optional. Chat invite link, which was used by the user to join the chat; for joining by invite link events only",
           "type": [
             "ChatInviteLink"
           ],
@@ -7555,6 +8035,15 @@
         {
           "optional": false,
           "one_of": null,
+          "description": "True, if the user is allowed to react to messages",
+          "type": [
+            "bool"
+          ],
+          "name": "can_react_to_messages"
+        },
+        {
+          "optional": false,
+          "one_of": null,
           "description": "True, if the user is allowed to edit their own tag",
           "type": [
             "bool"
@@ -7600,7 +8089,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever",
+          "description": "Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever.",
           "type": [
             "int"
           ],
@@ -7657,7 +8146,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever",
+          "description": "Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever.",
           "type": [
             "int"
           ],
@@ -7708,7 +8197,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Bio of the user.",
+          "description": "Optional. Bio of the user",
           "type": [
             "str"
           ],
@@ -7822,7 +8311,16 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. True, if the user is allowed to edit their own tag",
+          "description": "Optional. True, if the user is allowed to react to messages. If omitted, defaults to the value of can_send_messages.",
+          "type": [
+            "bool"
+          ],
+          "name": "can_react_to_messages"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. True, if the user is allowed to edit their own tag. If omitted, defaults to the value of can_pin_messages.",
           "type": [
             "bool"
           ],
@@ -7831,7 +8329,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. True, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups",
+          "description": "Optional. True, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups.",
           "type": [
             "bool"
           ],
@@ -7849,7 +8347,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. True, if the user is allowed to pin messages. Ignored in public supergroups",
+          "description": "Optional. True, if the user is allowed to pin messages. Ignored in public supergroups.",
           "type": [
             "bool"
           ],
@@ -7858,7 +8356,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. True, if the user is allowed to create forum topics. If omitted defaults to the value of can_pin_messages",
+          "description": "Optional. True, if the user is allowed to create forum topics. If omitted defaults to the value of can_pin_messages.",
           "type": [
             "bool"
           ],
@@ -8431,7 +8929,7 @@
         {
           "optional": false,
           "one_of": [],
-          "description": "Reaction emoji. Currently, it can be one of \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\"",
+          "description": "Reaction emoji. Currently, it can be one of \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\".",
           "type": [
             "str"
           ],
@@ -9088,7 +9586,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Unique name of the gift. This name can be used in https://t.me/nft/... links and story areas",
+          "description": "Unique name of the gift. This name can be used in https://t.me/nft/... links and story areas.",
           "type": [
             "str"
           ],
@@ -9268,7 +9766,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift",
+          "description": "Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift.",
           "type": [
             "int"
           ],
@@ -9292,7 +9790,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, “resale” for gifts bought from other users, “gifted_upgrade” for upgrades purchased after the gift was sent, or “offer” for gifts bought or sold through gift purchase offers",
+          "description": "Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, “resale” for gifts bought from other users, “gifted_upgrade” for upgrades purchased after the gift was sent, or “offer” for gifts bought or sold through gift purchase offers.",
           "type": [
             "str"
           ],
@@ -9340,7 +9838,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now",
+          "description": "Optional. Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now.",
           "type": [
             "int"
           ],
@@ -9484,7 +9982,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift",
+          "description": "Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift.",
           "type": [
             "int"
           ],
@@ -9628,7 +10126,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift",
+          "description": "Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift.",
           "type": [
             "int"
           ],
@@ -9715,7 +10213,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now",
+          "description": "Optional. Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now.",
           "type": [
             "int"
           ],
@@ -9751,7 +10249,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Offset for the next request. If empty, then there are no more results",
+          "description": "Optional. Offset for the next request. If empty, then there are no more results.",
           "type": [
             "str"
           ],
@@ -9760,6 +10258,33 @@
       ],
       "description": "Contains the list of gifts received and owned by a user or a chat.",
       "name": "OwnedGifts"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "True, if only selected users can access the bot. The bot's owner can always access it.",
+          "type": [
+            "bool"
+          ],
+          "name": "is_access_restricted"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The list of other users who have access to the bot if the access is restricted",
+          "type": [
+            "array",
+            [
+              "User"
+            ]
+          ],
+          "name": "added_users"
+        }
+      ],
+      "description": "This object describes the access settings of a bot.",
+      "name": "BotAccessSettings"
     },
     {
       "params": [
@@ -9850,7 +10375,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Description of the command; 1-256 characters.",
+          "description": "Description of the command; 1-256 characters",
           "type": [
             "str"
           ],
@@ -9934,7 +10459,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.",
+          "description": "Unique identifier for the target chat or username of the target supergroup in the format @username. Channel direct messages chats and channel chats aren't supported.",
           "type": [
             "int",
             "str"
@@ -9959,7 +10484,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.",
+          "description": "Unique identifier for the target chat or username of the target supergroup in the format @username. Channel direct messages chats and channel chats aren't supported.",
           "type": [
             "int",
             "str"
@@ -9984,7 +10509,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.",
+          "description": "Unique identifier for the target chat or username of the target supergroup in the format @username. Channel direct messages chats and channel chats aren't supported.",
           "type": [
             "int",
             "str"
@@ -10324,7 +10849,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. The user which will be the new owner of the chat if the previous owner does not return to the chat",
+          "description": "Optional. The user who will become the new owner of the chat if the previous owner does not return to the chat",
           "type": [
             "User"
           ],
@@ -10615,6 +11140,21 @@
         {
           "optional": false,
           "one_of": null,
+          "description": "Identifier of the sent inline message",
+          "type": [
+            "str"
+          ],
+          "name": "inline_message_id"
+        }
+      ],
+      "description": "Describes an inline message sent by a guest bot.",
+      "name": "SentGuestMessage"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
           "description": "Unique identifier of the prepared message",
           "type": [
             "str"
@@ -10624,7 +11164,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used",
+          "description": "Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used.",
           "type": [
             "int"
           ],
@@ -10672,213 +11212,6 @@
       ],
       "description": "Describes why a request was unsuccessful.",
       "name": "ResponseParameters"
-    },
-    {
-      "params": [
-        {
-          "optional": false,
-          "one_of": null,
-          "description": "Type of the result, must be photo",
-          "type": [
-            "str"
-          ],
-          "name": "type"
-        },
-        {
-          "optional": false,
-          "one_of": null,
-          "description": "File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »",
-          "type": [
-            "str"
-          ],
-          "name": "media"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing",
-          "type": [
-            "str"
-          ],
-          "name": "caption"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Mode for parsing entities in the photo caption. See formatting options for more details.",
-          "type": [
-            "str"
-          ],
-          "name": "parse_mode"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode",
-          "type": [
-            "array",
-            [
-              "MessageEntity"
-            ]
-          ],
-          "name": "caption_entities"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Pass True, if the caption must be shown above the message media",
-          "type": [
-            "bool"
-          ],
-          "name": "show_caption_above_media"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Pass True if the photo needs to be covered with a spoiler animation",
-          "type": [
-            "bool"
-          ],
-          "name": "has_spoiler"
-        }
-      ],
-      "description": "Represents a photo to be sent.",
-      "name": "InputMediaPhoto"
-    },
-    {
-      "params": [
-        {
-          "optional": false,
-          "one_of": null,
-          "description": "Type of the result, must be video",
-          "type": [
-            "str"
-          ],
-          "name": "type"
-        },
-        {
-          "optional": false,
-          "one_of": null,
-          "description": "File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »",
-          "type": [
-            "str"
-          ],
-          "name": "media"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »",
-          "type": [
-            "str"
-          ],
-          "name": "thumbnail"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »",
-          "type": [
-            "str"
-          ],
-          "name": "cover"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Start timestamp for the video in the message",
-          "type": [
-            "int"
-          ],
-          "name": "start_timestamp"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Caption of the video to be sent, 0-1024 characters after entities parsing",
-          "type": [
-            "str"
-          ],
-          "name": "caption"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Mode for parsing entities in the video caption. See formatting options for more details.",
-          "type": [
-            "str"
-          ],
-          "name": "parse_mode"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode",
-          "type": [
-            "array",
-            [
-              "MessageEntity"
-            ]
-          ],
-          "name": "caption_entities"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Pass True, if the caption must be shown above the message media",
-          "type": [
-            "bool"
-          ],
-          "name": "show_caption_above_media"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Video width",
-          "type": [
-            "int"
-          ],
-          "name": "width"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Video height",
-          "type": [
-            "int"
-          ],
-          "name": "height"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Video duration in seconds",
-          "type": [
-            "int"
-          ],
-          "name": "duration"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Pass True if the uploaded video is suitable for streaming",
-          "type": [
-            "bool"
-          ],
-          "name": "supports_streaming"
-        },
-        {
-          "optional": true,
-          "one_of": null,
-          "description": "Optional. Pass True if the video needs to be covered with a spoiler animation",
-          "type": [
-            "bool"
-          ],
-          "name": "has_spoiler"
-        }
-      ],
-      "description": "Represents a video to be sent.",
-      "name": "InputMediaVideo"
     },
     {
       "params": [
@@ -11149,6 +11482,489 @@
       ],
       "description": "Represents a general file to be sent.",
       "name": "InputMediaDocument"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Type of the result, must be live_photo",
+          "type": [
+            "str"
+          ],
+          "name": "type"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported.",
+          "type": [
+            "str"
+          ],
+          "name": "media"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported.",
+          "type": [
+            "str"
+          ],
+          "name": "photo"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Caption of the live photo to be sent, 0-1024 characters after entities parsing",
+          "type": [
+            "str"
+          ],
+          "name": "caption"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Mode for parsing entities in the live photo caption. See formatting options for more details.",
+          "type": [
+            "str"
+          ],
+          "name": "parse_mode"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode",
+          "type": [
+            "array",
+            [
+              "MessageEntity"
+            ]
+          ],
+          "name": "caption_entities"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Pass True, if the caption must be shown above the message media",
+          "type": [
+            "bool"
+          ],
+          "name": "show_caption_above_media"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Pass True if the live photo needs to be covered with a spoiler animation",
+          "type": [
+            "bool"
+          ],
+          "name": "has_spoiler"
+        }
+      ],
+      "description": "Represents a live photo to be sent.",
+      "name": "InputMediaLivePhoto"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Type of the result, must be location",
+          "type": [
+            "str"
+          ],
+          "name": "type"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Latitude of the location",
+          "type": [
+            "float"
+          ],
+          "name": "latitude"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Longitude of the location",
+          "type": [
+            "float"
+          ],
+          "name": "longitude"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. The radius of uncertainty for the location, measured in meters; 0-1500",
+          "type": [
+            "float"
+          ],
+          "name": "horizontal_accuracy"
+        }
+      ],
+      "description": "Represents a location to be sent.",
+      "name": "InputMediaLocation"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Type of the result, must be photo",
+          "type": [
+            "str"
+          ],
+          "name": "type"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »",
+          "type": [
+            "str"
+          ],
+          "name": "media"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing",
+          "type": [
+            "str"
+          ],
+          "name": "caption"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Mode for parsing entities in the photo caption. See formatting options for more details.",
+          "type": [
+            "str"
+          ],
+          "name": "parse_mode"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode",
+          "type": [
+            "array",
+            [
+              "MessageEntity"
+            ]
+          ],
+          "name": "caption_entities"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Pass True, if the caption must be shown above the message media",
+          "type": [
+            "bool"
+          ],
+          "name": "show_caption_above_media"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Pass True if the photo needs to be covered with a spoiler animation",
+          "type": [
+            "bool"
+          ],
+          "name": "has_spoiler"
+        }
+      ],
+      "description": "Represents a photo to be sent.",
+      "name": "InputMediaPhoto"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Type of the result, must be sticker",
+          "type": [
+            "str"
+          ],
+          "name": "type"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a .WEBP sticker from the Internet, or pass “attach://<file_attach_name>” to upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data under <file_attach_name> name. More information on Sending Files »",
+          "type": [
+            "str"
+          ],
+          "name": "media"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Emoji associated with the sticker; only for just uploaded stickers",
+          "type": [
+            "str"
+          ],
+          "name": "emoji"
+        }
+      ],
+      "description": "Represents a sticker file to be sent.",
+      "name": "InputMediaSticker"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Type of the result, must be venue",
+          "type": [
+            "str"
+          ],
+          "name": "type"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Latitude of the location",
+          "type": [
+            "float"
+          ],
+          "name": "latitude"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Longitude of the location",
+          "type": [
+            "float"
+          ],
+          "name": "longitude"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Name of the venue",
+          "type": [
+            "str"
+          ],
+          "name": "title"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Address of the venue",
+          "type": [
+            "str"
+          ],
+          "name": "address"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Foursquare identifier of the venue",
+          "type": [
+            "str"
+          ],
+          "name": "foursquare_id"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)",
+          "type": [
+            "str"
+          ],
+          "name": "foursquare_type"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Google Places identifier of the venue",
+          "type": [
+            "str"
+          ],
+          "name": "google_place_id"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Google Places type of the venue. (See supported types.)",
+          "type": [
+            "str"
+          ],
+          "name": "google_place_type"
+        }
+      ],
+      "description": "Represents a venue to be sent.",
+      "name": "InputMediaVenue"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Type of the result, must be video",
+          "type": [
+            "str"
+          ],
+          "name": "type"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »",
+          "type": [
+            "str"
+          ],
+          "name": "media"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »",
+          "type": [
+            "str"
+          ],
+          "name": "thumbnail"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »",
+          "type": [
+            "str"
+          ],
+          "name": "cover"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Start timestamp for the video in the message",
+          "type": [
+            "int"
+          ],
+          "name": "start_timestamp"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Caption of the video to be sent, 0-1024 characters after entities parsing",
+          "type": [
+            "str"
+          ],
+          "name": "caption"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Mode for parsing entities in the video caption. See formatting options for more details.",
+          "type": [
+            "str"
+          ],
+          "name": "parse_mode"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode",
+          "type": [
+            "array",
+            [
+              "MessageEntity"
+            ]
+          ],
+          "name": "caption_entities"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Pass True, if the caption must be shown above the message media",
+          "type": [
+            "bool"
+          ],
+          "name": "show_caption_above_media"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Video width",
+          "type": [
+            "int"
+          ],
+          "name": "width"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Video height",
+          "type": [
+            "int"
+          ],
+          "name": "height"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Video duration in seconds",
+          "type": [
+            "int"
+          ],
+          "name": "duration"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Pass True if the uploaded video is suitable for streaming",
+          "type": [
+            "bool"
+          ],
+          "name": "supports_streaming"
+        },
+        {
+          "optional": true,
+          "one_of": null,
+          "description": "Optional. Pass True if the video needs to be covered with a spoiler animation",
+          "type": [
+            "bool"
+          ],
+          "name": "has_spoiler"
+        }
+      ],
+      "description": "Represents a video to be sent.",
+      "name": "InputMediaVideo"
+    },
+    {
+      "params": [
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Type of the media, must be live_photo",
+          "type": [
+            "str"
+          ],
+          "name": "type"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported.",
+          "type": [
+            "str"
+          ],
+          "name": "media"
+        },
+        {
+          "optional": false,
+          "one_of": null,
+          "description": "The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported.",
+          "type": [
+            "str"
+          ],
+          "name": "photo"
+        }
+      ],
+      "description": "The paid media to send is a live photo.",
+      "name": "InputPaidMediaLivePhoto"
     },
     {
       "params": [
@@ -11764,7 +12580,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Type of the chat from which the inline query was sent. Can be either “sender” for a private chat with the inline query sender, “private”, “group”, “supergroup”, or “channel”. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat",
+          "description": "Optional. Type of the chat from which the inline query was sent. Can be either “sender” for a private chat with the inline query sender, “private”, “group”, “supergroup”, or “channel”. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat.",
           "type": [
             "str"
           ],
@@ -11935,7 +12751,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB",
+          "description": "A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB.",
           "type": [
             "str"
           ],
@@ -12120,7 +12936,7 @@
             "video/mp4",
             "image/jpeg"
           ],
-          "description": "Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”",
+          "description": "Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”.",
           "type": [
             "str"
           ],
@@ -12269,7 +13085,7 @@
             "video/mp4",
             "image/jpeg"
           ],
-          "description": "Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”",
+          "description": "Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”.",
           "type": [
             "str"
           ],
@@ -12899,7 +13715,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.",
+          "description": "Optional. Period in seconds during which the location can be updated, must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely",
           "type": [
             "int"
           ],
@@ -14072,7 +14888,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.",
+          "description": "Optional. Period in seconds during which the location can be updated, must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely",
           "type": [
             "int"
           ],
@@ -14777,7 +15593,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars. Currently, always “XTR”",
+          "description": "Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars. Currently, always “XTR”.",
           "type": [
             "str"
           ],
@@ -15362,7 +16178,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions",
+          "description": "Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions.",
           "type": [
             "TransactionPartner"
           ],
@@ -15371,7 +16187,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions",
+          "description": "Optional. Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions.",
           "type": [
             "TransactionPartner"
           ],
@@ -16071,7 +16887,7 @@
         {
           "optional": false,
           "one_of": null,
-          "description": "Photo that will be displayed in the game message in chats.",
+          "description": "Photo that will be displayed in the game message in chats",
           "type": [
             "array",
             [
@@ -16104,7 +16920,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Optional. Animation that will be displayed in the game message in chats. Upload via BotFather",
+          "description": "Optional. Animation that will be displayed in the game message in chats. Upload via BotFather.",
           "type": [
             "Animation"
           ],
@@ -16137,7 +16953,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Pass True if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters",
+          "description": "Pass True if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters.",
           "type": [
             "bool"
           ],
@@ -16155,7 +16971,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Required if inline_message_id is not specified. Unique identifier for the target chat",
+          "description": "Required if inline_message_id is not specified. Unique identifier for the target chat.",
           "type": [
             "int"
           ],
@@ -16164,7 +16980,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Required if inline_message_id is not specified. Identifier of the sent message",
+          "description": "Required if inline_message_id is not specified. Identifier of the sent message.",
           "type": [
             "int"
           ],
@@ -16173,7 +16989,7 @@
         {
           "optional": true,
           "one_of": null,
-          "description": "Required if chat_id and message_id are not specified. Identifier of the inline message",
+          "description": "Required if chat_id and message_id are not specified. Identifier of the inline message.",
           "type": [
             "str"
           ],

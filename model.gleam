@@ -18,8 +18,9 @@ pub type MessageOrigin {
 }
 
 pub type PaidMedia {
-  PaidMediaPreviewPaidMedia(PaidMediaPreview)
+  PaidMediaLivePhotoPaidMedia(PaidMediaLivePhoto)
   PaidMediaPhotoPaidMedia(PaidMediaPhoto)
+  PaidMediaPreviewPaidMedia(PaidMediaPreview)
   PaidMediaVideoPaidMedia(PaidMediaVideo)
 }
 
@@ -75,13 +76,15 @@ pub type ChatBoostSource {
 
 pub type InputMedia {
   InputMediaAnimationInputMedia(InputMediaAnimation)
-  InputMediaDocumentInputMedia(InputMediaDocument)
   InputMediaAudioInputMedia(InputMediaAudio)
+  InputMediaDocumentInputMedia(InputMediaDocument)
+  InputMediaLivePhotoInputMedia(InputMediaLivePhoto)
   InputMediaPhotoInputMedia(InputMediaPhoto)
   InputMediaVideoInputMedia(InputMediaVideo)
 }
 
 pub type InputPaidMedia {
+  InputPaidMediaLivePhotoInputPaidMedia(InputPaidMediaLivePhoto)
   InputPaidMediaPhotoInputPaidMedia(InputPaidMediaPhoto)
   InputPaidMediaVideoInputPaidMedia(InputPaidMediaVideo)
 }
@@ -151,7 +154,7 @@ pub type PassportElementError {
 }
 
 /// **Official reference:** This object represents an incoming update.
-/// At most one of the optional parameters can be present in any given update.
+/// At most one of the optional fields can be present in any given update.
 pub type Update {
   Update(
 /// The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
@@ -172,6 +175,8 @@ business_message: Option(Message),
 edited_business_message: Option(Message),
 /// Optional. Messages were deleted from a connected business account
 deleted_business_messages: Option(BusinessMessagesDeleted),
+/// Optional. New guest message. The bot can use the field Message.guest_query_id and the method answerGuestQuery to send a message in response.
+guest_message: Option(Message),
 /// Optional. A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify "message_reaction" in the list of allowed_updates to receive these updates. The update isn't received for reactions set by bots.
 message_reaction: Option(MessageReactionUpdated),
 /// Optional. Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify "message_reaction_count" in the list of allowed_updates to receive these updates. The updates are grouped and can be sent with delay up to a few minutes.
@@ -182,13 +187,13 @@ inline_query: Option(InlineQuery),
 chosen_inline_result: Option(ChosenInlineResult),
 /// Optional. New incoming callback query
 callback_query: Option(CallbackQuery),
-/// Optional. New incoming shipping query. Only for invoices with flexible price
+/// Optional. New incoming shipping query. Only for invoices with flexible price.
 shipping_query: Option(ShippingQuery),
-/// Optional. New incoming pre-checkout query. Contains full information about checkout
+/// Optional. New incoming pre-checkout query. Contains full information about checkout.
 pre_checkout_query: Option(PreCheckoutQuery),
 /// Optional. A user purchased paid media with a non-empty payload sent by the bot in a non-channel chat
 purchased_paid_media: Option(PaidMediaPurchased),
-/// Optional. New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot
+/// Optional. New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot.
 poll: Option(Poll),
 /// Optional. A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were sent by the bot itself.
 poll_answer: Option(PollAnswer),
@@ -202,7 +207,7 @@ chat_join_request: Option(ChatJoinRequest),
 chat_boost: Option(ChatBoostUpdated),
 /// Optional. A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates.
 removed_chat_boost: Option(ChatBoostRemoved),
-/// Optional. A new bot was created to be managed by the bot or token of a bot was changed
+/// Optional. A new bot was created to be managed by the bot, or token or owner of a managed bot was changed
 managed_bot: Option(ManagedBotUpdated),
   )
 }
@@ -226,7 +231,7 @@ last_error_message: Option(String),
 last_synchronization_error_date: Option(Int),
 /// Optional. The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery
 max_connections: Option(Int),
-/// Optional. A list of update types the bot is subscribed to. Defaults to all update types except chat_member
+/// Optional. A list of update types the bot is subscribed to. Defaults to all update types except chat_member, message_reaction, and message_reaction_count.
 allowed_updates: Option(List(String)),
   )
 }
@@ -254,9 +259,11 @@ added_to_attachment_menu: Option(Bool),
 can_join_groups: Option(Bool),
 /// Optional. True, if privacy mode is disabled for the bot. Returned only in getMe.
 can_read_all_group_messages: Option(Bool),
+/// Optional. True, if the bot supports guest queries from chats it is not a member of. Returned only in getMe.
+supports_guest_queries: Option(Bool),
 /// Optional. True, if the bot supports inline queries. Returned only in getMe.
 supports_inline_queries: Option(Bool),
-/// Optional. True, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in getMe.
+/// Optional. True, if the bot can be connected to a user account to manage it. Returned only in getMe.
 can_connect_to_business: Option(Bool),
 /// Optional. True, if the bot has a main Web App. Returned only in getMe.
 has_main_web_app: Option(Bool),
@@ -394,7 +401,7 @@ rating: Option(UserRating),
 first_profile_audio: Option(Audio),
 /// Optional. The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews
 unique_gift_colors: Option(UniqueGiftColors),
-/// Optional. The number of Telegram Stars a general user have to pay to send a message to the chat
+/// Optional. The number of Telegram Stars a general user has to pay to send a message to the chat
 paid_message_star_count: Option(Int),
   )
 }
@@ -402,13 +409,13 @@ paid_message_star_count: Option(Int),
 /// **Official reference:** This object represents a message.
 pub type Message {
   Message(
-/// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
+/// Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
 message_id: Int,
 /// Optional. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
 message_thread_id: Option(Int),
 /// Optional. Information about the direct messages chat topic that contains the message
 direct_messages_topic: Option(DirectMessagesTopic),
-/// Optional. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
+/// Optional. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats.
 from: Option(User),
 /// Optional. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
 sender_chat: Option(Chat),
@@ -420,6 +427,8 @@ sender_business_bot: Option(User),
 sender_tag: Option(String),
 /// Date the message was sent in Unix time. It is always a positive number, representing a valid date.
 date: Int,
+/// Optional. The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
+guest_query_id: Option(String),
 /// Optional. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
 business_connection_id: Option(String),
 /// Chat the message belongs to
@@ -444,6 +453,10 @@ reply_to_checklist_task_id: Option(Int),
 reply_to_poll_option_id: Option(String),
 /// Optional. Bot through which the message was sent
 via_bot: Option(User),
+/// Optional. For a message sent by a guest bot, this is the user whose original message triggered the bot's response
+guest_bot_caller_user: Option(User),
+/// Optional. For a message sent by a guest bot, this is the chat whose original message triggered the bot's response
+guest_bot_caller_chat: Option(Chat),
 /// Optional. Date the message was last edited in Unix time
 edit_date: Option(Int),
 /// Optional. True, if the message can't be forwarded
@@ -468,12 +481,14 @@ link_preview_options: Option(LinkPreviewOptions),
 suggested_post_info: Option(SuggestedPostInfo),
 /// Optional. Unique identifier of the message effect added to the message
 effect_id: Option(String),
-/// Optional. Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
+/// Optional. Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set.
 animation: Option(Animation),
 /// Optional. Message is an audio file, information about the file
 audio: Option(Audio),
 /// Optional. Message is a general file, information about the file
 document: Option(Document),
+/// Optional. Message is a live photo, information about the live photo. For backward compatibility, when this field is set, the photo field will also be set.
+live_photo: Option(LivePhoto),
 /// Optional. Message contains paid media; information about the paid media
 paid_media: Option(PaidMediaInfo),
 /// Optional. Message is a photo, available sizes of the photo
@@ -506,7 +521,7 @@ dice: Option(Dice),
 game: Option(Game),
 /// Optional. Message is a native poll, information about the poll
 poll: Option(Poll),
-/// Optional. Message is a venue, information about the venue. For backward compatibility, when this field is set, the location field will also be set
+/// Optional. Message is a venue, information about the venue. For backward compatibility, when this field is set, the location field will also be set.
 venue: Option(Venue),
 /// Optional. Message is a shared location, information about the location
 location: Option(Location),
@@ -628,7 +643,7 @@ reply_markup: Option(InlineKeyboardMarkup),
 /// **Official reference:** This object represents a unique message identifier.
 pub type MessageId {
   MessageId(
-/// Unique message identifier. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
+/// Unique message identifier. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
 message_id: Int,
   )
 }
@@ -648,7 +663,7 @@ date: Int,
 /// **Official reference:** This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 pub type MessageEntity {
   MessageEntity(
-/// Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time)
+/// Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time).
 type_: String,
 /// Offset in UTF-16 code units to the start of the entity
 offset: Int,
@@ -660,7 +675,7 @@ url: Option(String),
 user: Option(User),
 /// Optional. For “pre” only, the programming language of the entity text
 language: Option(String),
-/// Optional. For “custom_emoji” only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker
+/// Optional. For “custom_emoji” only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker.
 custom_emoji_id: Option(String),
 /// Optional. For “date_time” only, the Unix time associated with the entity
 unix_time: Option(Int),
@@ -700,6 +715,8 @@ animation: Option(Animation),
 audio: Option(Audio),
 /// Optional. Message is a general file, information about the file
 document: Option(Document),
+/// Optional. Message is a live photo, information about the live photo
+live_photo: Option(LivePhoto),
 /// Optional. Message contains paid media; information about the paid media
 paid_media: Option(PaidMediaInfo),
 /// Optional. Message is a photo, available sizes of the photo
@@ -744,7 +761,7 @@ pub type ReplyParameters {
   ReplyParameters(
 /// Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified
 message_id: Int,
-/// Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
+/// Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup or channel in the format @username. Not supported for messages sent on behalf of a business account and messages from channel direct messages chats.
 chat_id: Option(IntOrString),
 /// Optional. Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account.
 allow_sending_without_reply: Option(Bool),
@@ -899,6 +916,28 @@ file_size: Option(Int),
   )
 }
 
+/// **Official reference:** This object represents a live photo.
+pub type LivePhoto {
+  LivePhoto(
+/// Optional. Available sizes of the corresponding static photo
+photo: Option(List(PhotoSize)),
+/// Identifier for the video file which can be used to download or reuse the file
+file_id: String,
+/// Unique identifier for the video file which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+file_unique_id: String,
+/// Video width as defined by the sender
+width: Int,
+/// Video height as defined by the sender
+height: Int,
+/// Duration of the video in seconds as defined by the sender
+duration: Int,
+/// Optional. MIME type of the file as defined by the sender
+mime_type: Option(String),
+/// Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
+file_size: Option(Int),
+  )
+}
+
 /// **Official reference:** This object represents a story.
 pub type Story {
   Story(
@@ -1001,6 +1040,26 @@ paid_media: List(PaidMedia),
   )
 }
 
+/// **Official reference:** The paid media is a live photo.
+pub type PaidMediaLivePhoto {
+  PaidMediaLivePhoto(
+/// Type of the paid media, always “live_photo”
+type_: String,
+/// The photo
+live_photo: LivePhoto,
+  )
+}
+
+/// **Official reference:** The paid media is a photo.
+pub type PaidMediaPhoto {
+  PaidMediaPhoto(
+/// Type of the paid media, always “photo”
+type_: String,
+/// The photo
+photo: List(PhotoSize),
+  )
+}
+
 /// **Official reference:** The paid media isn't available before the payment.
 pub type PaidMediaPreview {
   PaidMediaPreview(
@@ -1012,16 +1071,6 @@ width: Option(Int),
 height: Option(Int),
 /// Optional. Duration of the media in seconds as defined by the sender
 duration: Option(Int),
-  )
-}
-
-/// **Official reference:** The paid media is a photo.
-pub type PaidMediaPhoto {
-  PaidMediaPhoto(
-/// Type of the paid media, always “photo”
-type_: String,
-/// The photo
-photo: List(PhotoSize),
   )
 }
 
@@ -1061,6 +1110,74 @@ value: Int,
   )
 }
 
+/// **Official reference:** At most one of the optional fields can be present in any given object.
+pub type PollMedia {
+  PollMedia(
+/// Optional. Media is an animation, information about the animation
+animation: Option(Animation),
+/// Optional. Media is an audio file, information about the file; currently, can't be received in a poll option
+audio: Option(Audio),
+/// Optional. Media is a general file, information about the file; currently, can't be received in a poll option
+document: Option(Document),
+/// Optional. Media is a live photo, information about the live photo
+live_photo: Option(LivePhoto),
+/// Optional. Media is a shared location, information about the location
+location: Option(Location),
+/// Optional. Media is a photo, available sizes of the photo
+photo: Option(List(PhotoSize)),
+/// Optional. Media is a sticker, information about the sticker; currently, for poll options only
+sticker: Option(Sticker),
+/// Optional. Media is a venue, information about the venue
+venue: Option(Venue),
+/// Optional. Media is a video, information about the video
+video: Option(Video),
+  )
+}
+
+/// **Official reference:** This object represents the content of a poll description or a quiz explanation to be sent. It should be one of
+pub type InputPollMedia {
+  InputPollMedia(
+/// Unique identifier of the option, persistent on option addition and deletion
+persistent_id: String,
+/// Option text, 1-100 characters
+text: String,
+/// Optional. Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts
+text_entities: Option(List(MessageEntity)),
+/// Optional. Media added to the poll option
+media: Option(PollMedia),
+/// Number of users who voted for this option; may be 0 if unknown
+voter_count: Int,
+/// Optional. User who added the option; omitted if the option wasn't added by a user after poll creation
+added_by_user: Option(User),
+/// Optional. Chat that added the option; omitted if the option wasn't added by a chat after poll creation
+added_by_chat: Option(Chat),
+/// Optional. Point in time (Unix timestamp) when the option was added; omitted if the option existed in the original poll
+addition_date: Option(Int),
+  )
+}
+
+/// **Official reference:** This object represents the content of a poll option to be sent. It should be one of
+pub type InputPollOptionMedia {
+  InputPollOptionMedia(
+/// Unique identifier of the option, persistent on option addition and deletion
+persistent_id: String,
+/// Option text, 1-100 characters
+text: String,
+/// Optional. Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts
+text_entities: Option(List(MessageEntity)),
+/// Optional. Media added to the poll option
+media: Option(PollMedia),
+/// Number of users who voted for this option; may be 0 if unknown
+voter_count: Int,
+/// Optional. User who added the option; omitted if the option wasn't added by a user after poll creation
+added_by_user: Option(User),
+/// Optional. Chat that added the option; omitted if the option wasn't added by a chat after poll creation
+added_by_chat: Option(Chat),
+/// Optional. Point in time (Unix timestamp) when the option was added; omitted if the option existed in the original poll
+addition_date: Option(Int),
+  )
+}
+
 /// **Official reference:** This object contains information about one answer option in a poll.
 pub type PollOption {
   PollOption(
@@ -1070,6 +1187,8 @@ persistent_id: String,
 text: String,
 /// Optional. Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts
 text_entities: Option(List(MessageEntity)),
+/// Optional. Media added to the poll option
+media: Option(PollMedia),
 /// Number of users who voted for this option; may be 0 if unknown
 voter_count: Int,
 /// Optional. User who added the option; omitted if the option wasn't added by a user after poll creation
@@ -1086,10 +1205,12 @@ pub type InputPollOption {
   InputPollOption(
 /// Option text, 1-100 characters
 text: String,
-/// Optional. Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed
+/// Optional. Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed.
 text_parse_mode: Option(String),
-/// Optional. A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of text_parse_mode
+/// Optional. A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of text_parse_mode.
 text_entities: Option(List(MessageEntity)),
+/// Optional. Media added to the poll option
+media: Option(InputPollOptionMedia),
   )
 }
 
@@ -1132,12 +1253,18 @@ type_: String,
 allows_multiple_answers: Bool,
 /// True, if the poll allows to change the chosen answer options
 allows_revoting: Bool,
+/// True if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
+members_only: Bool,
+/// Optional. A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code “FT” is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll.
+country_codes: Option(List(String)),
 /// Optional. Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot.
 correct_option_ids: Option(List(Int)),
 /// Optional. Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters
 explanation: Option(String),
 /// Optional. Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
 explanation_entities: Option(List(MessageEntity)),
+/// Optional. Media added to the quiz explanation
+explanation_media: Option(PollMedia),
 /// Optional. Amount of time in seconds the poll will be active after creation
 open_period: Option(Int),
 /// Optional. Point in time (Unix timestamp) when the poll will be automatically closed
@@ -1146,6 +1273,8 @@ close_date: Option(Int),
 description: Option(String),
 /// Optional. Special entities like usernames, URLs, bot commands, etc. that appear in the description
 description_entities: Option(List(MessageEntity)),
+/// Optional. Media added to the poll description; for polls inside the Message object only
+media: Option(PollMedia),
   )
 }
 
@@ -1258,7 +1387,7 @@ proximity_alert_radius: Option(Int),
 /// **Official reference:** This object represents a venue.
 pub type Venue {
   Venue(
-/// Venue location. Can't be a live location
+/// Venue location. Can't be a live location.
 location: Location,
 /// Name of the venue
 title: String,
@@ -1313,7 +1442,7 @@ bot: User,
   )
 }
 
-/// **Official reference:** This object contains information about the creation or token update of a bot that is managed by the current bot.
+/// **Official reference:** This object contains information about the creation, token update, or owner update of a bot that is managed by the current bot.
 pub type ManagedBotUpdated {
   ManagedBotUpdated(
 /// User that created the bot
@@ -1432,7 +1561,7 @@ document: Document,
 fill: BackgroundFill,
 /// Intensity of the pattern when it is shown above the filled background; 0-100
 intensity: Int,
-/// Optional. True, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only
+/// Optional. True, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only.
 is_inverted: Option(Bool),
 /// Optional. True, if the background moves slightly when the device is tilted
 is_moving: Option(Bool),
@@ -1518,7 +1647,7 @@ pub type UsersShared {
   UsersShared(
 /// Identifier of the request
 request_id: Int,
-/// Information about users shared with the bot.
+/// Information about users shared with the bot
 users: List(SharedUser),
   )
 }
@@ -1530,9 +1659,9 @@ pub type ChatShared {
 request_id: Int,
 /// Identifier of the shared chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. The bot may not have access to the chat and could be unable to use this identifier, unless the chat is already known to the bot by some other means.
 chat_id: Int,
-/// Optional. Title of the chat, if the title was requested by the bot.
+/// Optional. Title of the chat, if the title was requested by the bot
 title: Option(String),
-/// Optional. Username of the chat, if the username was requested by the bot and available.
+/// Optional. Username of the chat, if the username was requested by the bot and available
 username: Option(String),
 /// Optional. Available sizes of the chat photo, if the photo was requested by the bot
 photo: Option(List(PhotoSize)),
@@ -1634,7 +1763,7 @@ pub type SuggestedPostPaid {
   SuggestedPostPaid(
 /// Optional. Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply.
 suggested_post_message: Option(Message),
-/// Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins
+/// Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins.
 currency: String,
 /// Optional. The amount of the currency that was received by the channel in nanotoncoins; for payments in toncoins only
 amount: Option(Int),
@@ -1734,7 +1863,7 @@ pub type LinkPreviewOptions {
   LinkPreviewOptions(
 /// Optional. True, if the link preview is disabled
 is_disabled: Option(Bool),
-/// Optional. URL to use for the link preview. If empty, then the first URL found in the message text will be used
+/// Optional. URL to use for the link preview. If empty, then the first URL found in the message text will be used.
 url: Option(String),
 /// Optional. True, if the media in the link preview is supposed to be shrunk; ignored if the URL isn't explicitly specified or media size change isn't supported for the preview
 prefer_small_media: Option(Bool),
@@ -1748,7 +1877,7 @@ show_above_text: Option(Bool),
 /// **Official reference:** Describes the price of a suggested post.
 pub type SuggestedPostPrice {
   SuggestedPostPrice(
-/// Currency in which the post will be paid. Currently, must be one of “XTR” for Telegram Stars or “TON” for toncoins
+/// Currency in which the post will be paid. Currently, must be one of “XTR” for Telegram Stars or “TON” for toncoins.
 currency: String,
 /// The amount of the currency that will be paid for the post in the smallest units of the currency, i.e. Telegram Stars or nanotoncoins. Currently, price in Telegram Stars must be between 5 and 100000, and price in nanotoncoins must be between 10000000 and 10000000000000.
 amount: Int,
@@ -1782,7 +1911,7 @@ pub type DirectMessagesTopic {
   DirectMessagesTopic(
 /// Unique identifier of the topic. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
 topic_id: Int,
-/// Optional. Information about the user that created the topic. Currently, it is always present
+/// Optional. Information about the user that created the topic. Currently, it is always present.
 user: Option(User),
   )
 }
@@ -1829,7 +1958,7 @@ url: String,
   )
 }
 
-/// **Official reference:** This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a Telegram Business account.
+/// **Official reference:** This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a business account.
 pub type ReplyKeyboardMarkup {
   ReplyKeyboardMarkup(
 /// Array of button rows, each represented by an Array of KeyboardButton objects
@@ -1852,7 +1981,7 @@ selective: Option(Bool),
 /// **Official reference:** This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text.
 pub type KeyboardButton {
   KeyboardButton(
-/// Text of the button. If none of the fields other than text, icon_custom_emoji_id, and style are used, it will be sent as a message when the button is pressed
+/// Text of the button. If none of the fields other than text, icon_custom_emoji_id, and style are used, it will be sent as a message when the button is pressed.
 text: String,
 /// Optional. Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.
 icon_custom_emoji_id: Option(String),
@@ -1878,7 +2007,7 @@ web_app: Option(WebAppInfo),
 /// **Official reference:** This object defines the criteria used to request suitable users. Information about the selected users will be shared with the bot when the corresponding button is pressed. More about requesting users »
 pub type KeyboardButtonRequestUsers {
   KeyboardButtonRequestUsers(
-/// Signed 32-bit identifier of the request that will be received back in the UsersShared object. Must be unique within the message
+/// Signed 32-bit identifier of the request that will be received back in the UsersShared object. Must be unique within the message.
 request_id: Int,
 /// Optional. Pass True to request bots, pass False to request regular users. If not specified, no additional restrictions are applied.
 user_is_bot: Option(Bool),
@@ -1898,9 +2027,9 @@ request_photo: Option(Bool),
 /// **Official reference:** This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the chat if appropriate. More about requesting chats ».
 pub type KeyboardButtonRequestChat {
   KeyboardButtonRequestChat(
-/// Signed 32-bit identifier of the request, which will be received back in the ChatShared object. Must be unique within the message
+/// Signed 32-bit identifier of the request, which will be received back in the ChatShared object. Must be unique within the message.
 request_id: Int,
-/// Pass True to request a channel chat, pass False to request a group or a supergroup chat.
+/// Pass True to request a channel chat, pass False to request a group or a supergroup chat
 chat_is_channel: Bool,
 /// Optional. Pass True to request a forum supergroup, pass False to request a non-forum chat. If not specified, no additional restrictions are applied.
 chat_is_forum: Option(Bool),
@@ -1926,7 +2055,7 @@ request_photo: Option(Bool),
 /// **Official reference:** This object defines the parameters for the creation of a managed bot. Information about the created bot will be shared with the bot using the update managed_bot and a Message with the field managed_bot_created.
 pub type KeyboardButtonRequestManagedBot {
   KeyboardButtonRequestManagedBot(
-/// Signed 32-bit identifier of the request. Must be unique within the message
+/// Signed 32-bit identifier of the request. Must be unique within the message.
 request_id: Int,
 /// Optional. Suggested name for the bot
 suggested_name: Option(String),
@@ -1943,7 +2072,7 @@ type_: Option(String),
   )
 }
 
-/// **Official reference:** Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a Telegram Business account.
+/// **Official reference:** Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a business account.
 pub type ReplyKeyboardRemove {
   ReplyKeyboardRemove(
 /// Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use one_time_keyboard in ReplyKeyboardMarkup)
@@ -1976,19 +2105,19 @@ style: Option(String),
 url: Option(String),
 /// Optional. Data to be sent in a callback query to the bot when the button is pressed, 1-64 bytes
 callback_data: Option(String),
-/// Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a Telegram Business account.
+/// Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
 web_app: Option(WebAppInfo),
 /// Optional. An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget.
 login_url: Option(LoginUrl),
-/// Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+/// Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a business account.
 switch_inline_query: Option(String),
 /// Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.
 /// 
-/// This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+/// This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent in channel direct messages chats and on behalf of a business account.
 switch_inline_query_current_chat: Option(String),
-/// Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account.
+/// Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a business account.
 switch_inline_query_chosen_chat: Option(SwitchInlineQueryChosenChat),
-/// Optional. Description of the button that copies the specified text to the clipboard.
+/// Optional. Description of the button that copies the specified text to the clipboard
 copy_text: Option(CopyTextButton),
 /// Optional. Description of the game that will be launched when the user presses the button.
 /// 
@@ -2008,11 +2137,11 @@ pub type LoginUrl {
 /// 
 /// NOTE: You must always check the hash of the received data to verify the authentication and the integrity of the data as described in Checking authorization.
 url: String,
-/// Optional. New text of the button in forwarded messages.
+/// Optional. New text of the button in forwarded messages
 forward_text: Option(String),
 /// Optional. Username of a bot, which will be used for user authorization. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details.
 bot_username: Option(String),
-/// Optional. Pass True to request the permission for your bot to send messages to the user.
+/// Optional. Pass True to request the permission for your bot to send messages to the user
 request_write_access: Option(Bool),
   )
 }
@@ -2020,7 +2149,7 @@ request_write_access: Option(Bool),
 /// **Official reference:** This object represents an inline button that switches the current user to inline mode in a chosen chat, with an optional default inline query.
 pub type SwitchInlineQueryChosenChat {
   SwitchInlineQueryChosenChat(
-/// Optional. The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted
+/// Optional. The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted.
 query: Option(String),
 /// Optional. True, if private chats with users can be chosen
 allow_user_chats: Option(Bool),
@@ -2050,7 +2179,7 @@ id: String,
 from: User,
 /// Optional. Message sent by the bot with the callback button that originated the query
 message: Option(MaybeInaccessibleMessage),
-/// Optional. Identifier of the message sent via the bot in inline mode, that originated the query.
+/// Optional. Identifier of the message sent via the bot in inline mode, that originated the query
 inline_message_id: Option(String),
 /// Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
 chat_instance: String,
@@ -2061,7 +2190,7 @@ game_short_name: Option(String),
   )
 }
 
-/// **Official reference:** Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a Telegram Business account.
+/// **Official reference:** Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a user account.
 pub type ForceReply {
   ForceReply(
 /// Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
@@ -2168,7 +2297,7 @@ date: Int,
 old_chat_member: ChatMember,
 /// New information about the chat member
 new_chat_member: ChatMember,
-/// Optional. Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
+/// Optional. Chat invite link, which was used by the user to join the chat; for joining by invite link events only
 invite_link: Option(ChatInviteLink),
 /// Optional. True, if the user joined the chat after sending a direct join request without using an invite link and being approved by an administrator
 via_join_request: Option(Bool),
@@ -2284,6 +2413,8 @@ can_send_polls: Bool,
 can_send_other_messages: Bool,
 /// True, if the user is allowed to add web page previews to their messages
 can_add_web_page_previews: Bool,
+/// True, if the user is allowed to react to messages
+can_react_to_messages: Bool,
 /// True, if the user is allowed to edit their own tag
 can_edit_tag: Bool,
 /// True, if the user is allowed to change the chat title, photo and other settings
@@ -2294,7 +2425,7 @@ can_invite_users: Bool,
 can_pin_messages: Bool,
 /// True, if the user is allowed to create forum topics
 can_manage_topics: Bool,
-/// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever
+/// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is restricted forever.
 until_date: Int,
   )
 }
@@ -2316,7 +2447,7 @@ pub type ChatMemberBanned {
 status: String,
 /// Information about the user
 user: User,
-/// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever
+/// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever.
 until_date: Int,
   )
 }
@@ -2332,7 +2463,7 @@ from: User,
 user_chat_id: Int,
 /// Date the request was sent in Unix time
 date: Int,
-/// Optional. Bio of the user.
+/// Optional. Bio of the user
 bio: Option(String),
 /// Optional. Chat invite link that was used by the user to send the join request
 invite_link: Option(ChatInviteLink),
@@ -2362,15 +2493,17 @@ can_send_polls: Option(Bool),
 can_send_other_messages: Option(Bool),
 /// Optional. True, if the user is allowed to add web page previews to their messages
 can_add_web_page_previews: Option(Bool),
-/// Optional. True, if the user is allowed to edit their own tag
+/// Optional. True, if the user is allowed to react to messages. If omitted, defaults to the value of can_send_messages.
+can_react_to_messages: Option(Bool),
+/// Optional. True, if the user is allowed to edit their own tag. If omitted, defaults to the value of can_pin_messages.
 can_edit_tag: Option(Bool),
-/// Optional. True, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups
+/// Optional. True, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups.
 can_change_info: Option(Bool),
 /// Optional. True, if the user is allowed to invite new users to the chat
 can_invite_users: Option(Bool),
-/// Optional. True, if the user is allowed to pin messages. Ignored in public supergroups
+/// Optional. True, if the user is allowed to pin messages. Ignored in public supergroups.
 can_pin_messages: Option(Bool),
-/// Optional. True, if the user is allowed to create forum topics. If omitted defaults to the value of can_pin_messages
+/// Optional. True, if the user is allowed to create forum topics. If omitted defaults to the value of can_pin_messages.
 can_manage_topics: Option(Bool),
   )
 }
@@ -2576,7 +2709,7 @@ pub type ReactionTypeEmoji {
   ReactionTypeEmoji(
 /// Type of the reaction, always “emoji”
 type_: String,
-/// Reaction emoji. Currently, it can be one of "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
+/// Reaction emoji. Currently, it can be one of "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "".
 emoji: String,
   )
 }
@@ -2788,7 +2921,7 @@ pub type UniqueGift {
 gift_id: String,
 /// Human-readable name of the regular gift from which this unique gift was upgraded
 base_name: String,
-/// Unique name of the gift. This name can be used in https://t.me/nft/... links and story areas
+/// Unique name of the gift. This name can be used in https://t.me/nft/... links and story areas.
 name: String,
 /// Unique number of the upgraded gift among gifts upgraded from the same regular gift
 number: Int,
@@ -2832,7 +2965,7 @@ text: Option(String),
 entities: Option(List(MessageEntity)),
 /// Optional. True, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them
 is_private: Option(Bool),
-/// Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift
+/// Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift.
 unique_gift_number: Option(Int),
   )
 }
@@ -2842,7 +2975,7 @@ pub type UniqueGiftInfo {
   UniqueGiftInfo(
 /// Information about the gift
 gift: UniqueGift,
-/// Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, “resale” for gifts bought from other users, “gifted_upgrade” for upgrades purchased after the gift was sent, or “offer” for gifts bought or sold through gift purchase offers
+/// Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, “resale” for gifts bought from other users, “gifted_upgrade” for upgrades purchased after the gift was sent, or “offer” for gifts bought or sold through gift purchase offers.
 origin: String,
 /// Optional. For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins.
 last_resale_currency: Option(String),
@@ -2852,7 +2985,7 @@ last_resale_amount: Option(Int),
 owned_gift_id: Option(String),
 /// Optional. Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift
 transfer_star_count: Option(Int),
-/// Optional. Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now
+/// Optional. Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now.
 next_transfer_date: Option(Int),
   )
 }
@@ -2888,7 +3021,7 @@ convert_star_count: Option(Int),
 prepaid_upgrade_star_count: Option(Int),
 /// Optional. True, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only
 is_upgrade_separate: Option(Bool),
-/// Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift
+/// Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift.
 unique_gift_number: Option(Int),
   )
 }
@@ -2924,7 +3057,7 @@ convert_star_count: Option(Int),
 prepaid_upgrade_star_count: Option(Int),
 /// Optional. True, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only
 is_upgrade_separate: Option(Bool),
-/// Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift
+/// Optional. Unique number reserved for this gift when upgraded. See the number field in UniqueGift.
 unique_gift_number: Option(Int),
   )
 }
@@ -2948,7 +3081,7 @@ is_saved: Option(Bool),
 can_be_transferred: Option(Bool),
 /// Optional. Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift
 transfer_star_count: Option(Int),
-/// Optional. Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now
+/// Optional. Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now.
 next_transfer_date: Option(Int),
   )
 }
@@ -2960,8 +3093,18 @@ pub type OwnedGifts {
 total_count: Int,
 /// The list of gifts
 gifts: List(OwnedGift),
-/// Optional. Offset for the next request. If empty, then there are no more results
+/// Optional. Offset for the next request. If empty, then there are no more results.
 next_offset: Option(String),
+  )
+}
+
+/// **Official reference:** This object describes the access settings of a bot.
+pub type BotAccessSettings {
+  BotAccessSettings(
+/// True, if only selected users can access the bot. The bot's owner can always access it.
+is_access_restricted: Bool,
+/// Optional. The list of other users who have access to the bot if the access is restricted
+added_users: Option(List(User)),
   )
 }
 
@@ -2996,7 +3139,7 @@ pub type BotCommand {
   BotCommand(
 /// Text of the command; 1-32 characters. Can contain only lowercase English letters, digits and underscores.
 command: String,
-/// Description of the command; 1-256 characters.
+/// Description of the command; 1-256 characters
 description: String,
   )
 }
@@ -3038,7 +3181,7 @@ pub type BotCommandScopeChat {
   BotCommandScopeChat(
 /// Scope type, must be chat
 type_: String,
-/// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
+/// Unique identifier for the target chat or username of the target supergroup in the format @username. Channel direct messages chats and channel chats aren't supported.
 chat_id: IntOrString,
   )
 }
@@ -3048,7 +3191,7 @@ pub type BotCommandScopeChatAdministrators {
   BotCommandScopeChatAdministrators(
 /// Scope type, must be chat_administrators
 type_: String,
-/// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
+/// Unique identifier for the target chat or username of the target supergroup in the format @username. Channel direct messages chats and channel chats aren't supported.
 chat_id: IntOrString,
   )
 }
@@ -3058,7 +3201,7 @@ pub type BotCommandScopeChatMember {
   BotCommandScopeChatMember(
 /// Scope type, must be chat_member
 type_: String,
-/// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername). Channel direct messages chats and channel chats aren't supported.
+/// Unique identifier for the target chat or username of the target supergroup in the format @username. Channel direct messages chats and channel chats aren't supported.
 chat_id: IntOrString,
 /// Unique identifier of the target user
 user_id: Int,
@@ -3194,7 +3337,7 @@ source: ChatBoostSource,
 /// **Official reference:** Describes a service message about the chat owner leaving the chat.
 pub type ChatOwnerLeft {
   ChatOwnerLeft(
-/// Optional. The user which will be the new owner of the chat if the previous owner does not return to the chat
+/// Optional. The user who will become the new owner of the chat if the previous owner does not return to the chat
 new_owner: Option(User),
   )
 }
@@ -3287,12 +3430,20 @@ inline_message_id: Option(String),
   )
 }
 
+/// **Official reference:** Describes an inline message sent by a guest bot.
+pub type SentGuestMessage {
+  SentGuestMessage(
+/// Identifier of the sent inline message
+inline_message_id: String,
+  )
+}
+
 /// **Official reference:** Describes an inline message to be sent by a user of a Mini App.
 pub type PreparedInlineMessage {
   PreparedInlineMessage(
 /// Unique identifier of the prepared message
 id: String,
-/// Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used
+/// Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used.
 expiration_date: Int,
   )
 }
@@ -3312,60 +3463,6 @@ pub type ResponseParameters {
 migrate_to_chat_id: Option(Int),
 /// Optional. In case of exceeding flood control, the number of seconds left to wait before the request can be repeated
 retry_after: Option(Int),
-  )
-}
-
-/// **Official reference:** Represents a photo to be sent.
-pub type InputMediaPhoto {
-  InputMediaPhoto(
-/// Type of the result, must be photo
-type_: String,
-/// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-media: String,
-/// Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
-caption: Option(String),
-/// Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
-parse_mode: Option(String),
-/// Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-caption_entities: Option(List(MessageEntity)),
-/// Optional. Pass True, if the caption must be shown above the message media
-show_caption_above_media: Option(Bool),
-/// Optional. Pass True if the photo needs to be covered with a spoiler animation
-has_spoiler: Option(Bool),
-  )
-}
-
-/// **Official reference:** Represents a video to be sent.
-pub type InputMediaVideo {
-  InputMediaVideo(
-/// Type of the result, must be video
-type_: String,
-/// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-media: String,
-/// Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-thumbnail: Option(String),
-/// Optional. Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-cover: Option(String),
-/// Optional. Start timestamp for the video in the message
-start_timestamp: Option(Int),
-/// Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
-caption: Option(String),
-/// Optional. Mode for parsing entities in the video caption. See formatting options for more details.
-parse_mode: Option(String),
-/// Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-caption_entities: Option(List(MessageEntity)),
-/// Optional. Pass True, if the caption must be shown above the message media
-show_caption_above_media: Option(Bool),
-/// Optional. Video width
-width: Option(Int),
-/// Optional. Video height
-height: Option(Int),
-/// Optional. Video duration in seconds
-duration: Option(Int),
-/// Optional. Pass True if the uploaded video is suitable for streaming
-supports_streaming: Option(Bool),
-/// Optional. Pass True if the video needs to be covered with a spoiler animation
-has_spoiler: Option(Bool),
   )
 }
 
@@ -3438,6 +3535,144 @@ parse_mode: Option(String),
 caption_entities: Option(List(MessageEntity)),
 /// Optional. Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always True, if the document is sent as part of an album.
 disable_content_type_detection: Option(Bool),
+  )
+}
+
+/// **Official reference:** Represents a live photo to be sent.
+pub type InputMediaLivePhoto {
+  InputMediaLivePhoto(
+/// Type of the result, must be live_photo
+type_: String,
+/// Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported.
+media: String,
+/// The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported.
+photo: String,
+/// Optional. Caption of the live photo to be sent, 0-1024 characters after entities parsing
+caption: Option(String),
+/// Optional. Mode for parsing entities in the live photo caption. See formatting options for more details.
+parse_mode: Option(String),
+/// Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+caption_entities: Option(List(MessageEntity)),
+/// Optional. Pass True, if the caption must be shown above the message media
+show_caption_above_media: Option(Bool),
+/// Optional. Pass True if the live photo needs to be covered with a spoiler animation
+has_spoiler: Option(Bool),
+  )
+}
+
+/// **Official reference:** Represents a location to be sent.
+pub type InputMediaLocation {
+  InputMediaLocation(
+/// Type of the result, must be location
+type_: String,
+/// Latitude of the location
+latitude: Float,
+/// Longitude of the location
+longitude: Float,
+/// Optional. The radius of uncertainty for the location, measured in meters; 0-1500
+horizontal_accuracy: Option(Float),
+  )
+}
+
+/// **Official reference:** Represents a photo to be sent.
+pub type InputMediaPhoto {
+  InputMediaPhoto(
+/// Type of the result, must be photo
+type_: String,
+/// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
+media: String,
+/// Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
+caption: Option(String),
+/// Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
+parse_mode: Option(String),
+/// Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+caption_entities: Option(List(MessageEntity)),
+/// Optional. Pass True, if the caption must be shown above the message media
+show_caption_above_media: Option(Bool),
+/// Optional. Pass True if the photo needs to be covered with a spoiler animation
+has_spoiler: Option(Bool),
+  )
+}
+
+/// **Official reference:** Represents a sticker file to be sent.
+pub type InputMediaSticker {
+  InputMediaSticker(
+/// Type of the result, must be sticker
+type_: String,
+/// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a .WEBP sticker from the Internet, or pass “attach://<file_attach_name>” to upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data under <file_attach_name> name. More information on Sending Files »
+media: String,
+/// Optional. Emoji associated with the sticker; only for just uploaded stickers
+emoji: Option(String),
+  )
+}
+
+/// **Official reference:** Represents a venue to be sent.
+pub type InputMediaVenue {
+  InputMediaVenue(
+/// Type of the result, must be venue
+type_: String,
+/// Latitude of the location
+latitude: Float,
+/// Longitude of the location
+longitude: Float,
+/// Name of the venue
+title: String,
+/// Address of the venue
+address: String,
+/// Optional. Foursquare identifier of the venue
+foursquare_id: Option(String),
+/// Optional. Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
+foursquare_type: Option(String),
+/// Optional. Google Places identifier of the venue
+google_place_id: Option(String),
+/// Optional. Google Places type of the venue. (See supported types.)
+google_place_type: Option(String),
+  )
+}
+
+/// **Official reference:** Represents a video to be sent.
+pub type InputMediaVideo {
+  InputMediaVideo(
+/// Type of the result, must be video
+type_: String,
+/// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
+media: String,
+/// Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+thumbnail: Option(String),
+/// Optional. Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
+cover: Option(String),
+/// Optional. Start timestamp for the video in the message
+start_timestamp: Option(Int),
+/// Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
+caption: Option(String),
+/// Optional. Mode for parsing entities in the video caption. See formatting options for more details.
+parse_mode: Option(String),
+/// Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+caption_entities: Option(List(MessageEntity)),
+/// Optional. Pass True, if the caption must be shown above the message media
+show_caption_above_media: Option(Bool),
+/// Optional. Video width
+width: Option(Int),
+/// Optional. Video height
+height: Option(Int),
+/// Optional. Video duration in seconds
+duration: Option(Int),
+/// Optional. Pass True if the uploaded video is suitable for streaming
+supports_streaming: Option(Bool),
+/// Optional. Pass True if the video needs to be covered with a spoiler animation
+has_spoiler: Option(Bool),
+  )
+}
+
+/// **Official reference:** The paid media to send is a live photo.
+pub type InputPaidMediaLivePhoto {
+  InputPaidMediaLivePhoto(
+/// Type of the media, must be live_photo
+type_: String,
+/// Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported.
+media: String,
+/// The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files ». Sending live photos by a URL is currently unsupported.
+photo: String,
   )
 }
 
@@ -3626,7 +3861,7 @@ from: User,
 query: String,
 /// Offset of the results to be returned, can be controlled by the bot
 offset: String,
-/// Optional. Type of the chat from which the inline query was sent. Can be either “sender” for a private chat with the inline query sender, “private”, “group”, “supergroup”, or “channel”. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat
+/// Optional. Type of the chat from which the inline query was sent. Can be either “sender” for a private chat with the inline query sender, “private”, “group”, “supergroup”, or “channel”. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat.
 chat_type: Option(String),
 /// Optional. Sender location, only for bots that request user location
 location: Option(Location),
@@ -3680,7 +3915,7 @@ pub type InlineQueryResultPhoto {
 type_: String,
 /// Unique identifier for this result, 1-64 bytes
 id: String,
-/// A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB
+/// A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB.
 photo_url: String,
 /// URL of the thumbnail for the photo
 thumbnail_url: String,
@@ -3724,7 +3959,7 @@ gif_height: Option(Int),
 gif_duration: Option(Int),
 /// URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
 thumbnail_url: String,
-/// Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
+/// Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”.
 thumbnail_mime_type: Option(String),
 /// Optional. Title for the result
 title: Option(String),
@@ -3760,7 +3995,7 @@ mpeg4_height: Option(Int),
 mpeg4_duration: Option(Int),
 /// URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
 thumbnail_url: String,
-/// Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
+/// Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”.
 thumbnail_mime_type: Option(String),
 /// Optional. Title for the result
 title: Option(String),
@@ -3920,7 +4155,7 @@ longitude: Float,
 title: String,
 /// Optional. The radius of uncertainty for the location, measured in meters; 0-1500
 horizontal_accuracy: Option(Float),
-/// Optional. Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
+/// Optional. Period in seconds during which the location can be updated, must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely
 live_period: Option(Int),
 /// Optional. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
 heading: Option(Int),
@@ -4236,7 +4471,7 @@ latitude: Float,
 longitude: Float,
 /// Optional. The radius of uncertainty for the location, measured in meters; 0-1500
 horizontal_accuracy: Option(Float),
-/// Optional. Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
+/// Optional. Period in seconds during which the location can be updated, must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely
 live_period: Option(Int),
 /// Optional. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
 heading: Option(Int),
@@ -4442,7 +4677,7 @@ provider_payment_charge_id: String,
 /// **Official reference:** This object contains basic information about a refunded payment.
 pub type RefundedPayment {
   RefundedPayment(
-/// Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars. Currently, always “XTR”
+/// Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars. Currently, always “XTR”.
 currency: String,
 /// Total refunded price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45, total_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
 total_amount: Int,
@@ -4640,9 +4875,9 @@ amount: Int,
 nanostar_amount: Option(Int),
 /// Date the transaction was created in Unix time
 date: Int,
-/// Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
+/// Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions.
 source: Option(TransactionPartner),
-/// Optional. Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
+/// Optional. Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions.
 receiver: Option(TransactionPartner),
   )
 }
@@ -4852,13 +5087,13 @@ pub type Game {
 title: String,
 /// Description of the game
 description: String,
-/// Photo that will be displayed in the game message in chats.
+/// Photo that will be displayed in the game message in chats
 photo: List(PhotoSize),
 /// Optional. Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
 text: Option(String),
 /// Optional. Special entities that appear in text, such as usernames, URLs, bot commands, etc.
 text_entities: Option(List(MessageEntity)),
-/// Optional. Animation that will be displayed in the game message in chats. Upload via BotFather
+/// Optional. Animation that will be displayed in the game message in chats. Upload via BotFather.
 animation: Option(Animation),
   )
 }
@@ -4870,15 +5105,15 @@ pub type CallbackGame {
 user_id: Int,
 /// New score, must be non-negative
 score: Int,
-/// Pass True if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters
+/// Pass True if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters.
 force: Option(Bool),
 /// Pass True if the game message should not be automatically edited to include the current scoreboard
 disable_edit_message: Option(Bool),
-/// Required if inline_message_id is not specified. Unique identifier for the target chat
+/// Required if inline_message_id is not specified. Unique identifier for the target chat.
 chat_id: Option(Int),
-/// Required if inline_message_id is not specified. Identifier of the sent message
+/// Required if inline_message_id is not specified. Identifier of the sent message.
 message_id: Option(Int),
-/// Required if chat_id and message_id are not specified. Identifier of the inline message
+/// Required if chat_id and message_id are not specified. Identifier of the inline message.
 inline_message_id: Option(String),
   )
 }
@@ -4905,6 +5140,7 @@ use business_connection <- decode.field("business_connection", decode.optional(b
 use business_message <- decode.field("business_message", decode.optional(message_decoder()))
 use edited_business_message <- decode.field("edited_business_message", decode.optional(message_decoder()))
 use deleted_business_messages <- decode.field("deleted_business_messages", decode.optional(business_messages_deleted_decoder()))
+use guest_message <- decode.field("guest_message", decode.optional(message_decoder()))
 use message_reaction <- decode.field("message_reaction", decode.optional(message_reaction_updated_decoder()))
 use message_reaction_count <- decode.field("message_reaction_count", decode.optional(message_reaction_count_updated_decoder()))
 use inline_query <- decode.field("inline_query", decode.optional(inline_query_decoder()))
@@ -4931,6 +5167,7 @@ decode.success(Update(
       business_message: business_message,
       edited_business_message: edited_business_message,
       deleted_business_messages: deleted_business_messages,
+      guest_message: guest_message,
       message_reaction: message_reaction,
       message_reaction_count: message_reaction_count,
       inline_query: inline_query,
@@ -4982,6 +5219,7 @@ use is_premium <- decode.field("is_premium", decode.optional(decode.bool))
 use added_to_attachment_menu <- decode.field("added_to_attachment_menu", decode.optional(decode.bool))
 use can_join_groups <- decode.field("can_join_groups", decode.optional(decode.bool))
 use can_read_all_group_messages <- decode.field("can_read_all_group_messages", decode.optional(decode.bool))
+use supports_guest_queries <- decode.field("supports_guest_queries", decode.optional(decode.bool))
 use supports_inline_queries <- decode.field("supports_inline_queries", decode.optional(decode.bool))
 use can_connect_to_business <- decode.field("can_connect_to_business", decode.optional(decode.bool))
 use has_main_web_app <- decode.field("has_main_web_app", decode.optional(decode.bool))
@@ -4999,6 +5237,7 @@ decode.success(User(
       added_to_attachment_menu: added_to_attachment_menu,
       can_join_groups: can_join_groups,
       can_read_all_group_messages: can_read_all_group_messages,
+      supports_guest_queries: supports_guest_queries,
       supports_inline_queries: supports_inline_queries,
       can_connect_to_business: can_connect_to_business,
       has_main_web_app: has_main_web_app,
@@ -5143,6 +5382,7 @@ use sender_boost_count <- decode.field("sender_boost_count", decode.optional(dec
 use sender_business_bot <- decode.field("sender_business_bot", decode.optional(user_decoder()))
 use sender_tag <- decode.field("sender_tag", decode.optional(decode.string))
 use date <- decode.field("date", decode.int)
+use guest_query_id <- decode.field("guest_query_id", decode.optional(decode.string))
 use business_connection_id <- decode.field("business_connection_id", decode.optional(decode.string))
 use chat <- decode.field("chat", chat_decoder())
 use forward_origin <- decode.field("forward_origin", decode.optional(message_origin_decoder()))
@@ -5155,6 +5395,8 @@ use reply_to_story <- decode.field("reply_to_story", decode.optional(story_decod
 use reply_to_checklist_task_id <- decode.field("reply_to_checklist_task_id", decode.optional(decode.int))
 use reply_to_poll_option_id <- decode.field("reply_to_poll_option_id", decode.optional(decode.string))
 use via_bot <- decode.field("via_bot", decode.optional(user_decoder()))
+use guest_bot_caller_user <- decode.field("guest_bot_caller_user", decode.optional(user_decoder()))
+use guest_bot_caller_chat <- decode.field("guest_bot_caller_chat", decode.optional(chat_decoder()))
 use edit_date <- decode.field("edit_date", decode.optional(decode.int))
 use has_protected_content <- decode.field("has_protected_content", decode.optional(decode.bool))
 use is_from_offline <- decode.field("is_from_offline", decode.optional(decode.bool))
@@ -5170,6 +5412,7 @@ use effect_id <- decode.field("effect_id", decode.optional(decode.string))
 use animation <- decode.field("animation", decode.optional(animation_decoder()))
 use audio <- decode.field("audio", decode.optional(audio_decoder()))
 use document <- decode.field("document", decode.optional(document_decoder()))
+use live_photo <- decode.field("live_photo", decode.optional(live_photo_decoder()))
 use paid_media <- decode.field("paid_media", decode.optional(paid_media_info_decoder()))
 use photo <- decode.field("photo", decode.optional(decode.list(photo_size_decoder())))
 use sticker <- decode.field("sticker", decode.optional(sticker_decoder()))
@@ -5254,6 +5497,7 @@ decode.success(Message(
       sender_business_bot: sender_business_bot,
       sender_tag: sender_tag,
       date: date,
+      guest_query_id: guest_query_id,
       business_connection_id: business_connection_id,
       chat: chat,
       forward_origin: forward_origin,
@@ -5266,6 +5510,8 @@ decode.success(Message(
       reply_to_checklist_task_id: reply_to_checklist_task_id,
       reply_to_poll_option_id: reply_to_poll_option_id,
       via_bot: via_bot,
+      guest_bot_caller_user: guest_bot_caller_user,
+      guest_bot_caller_chat: guest_bot_caller_chat,
       edit_date: edit_date,
       has_protected_content: has_protected_content,
       is_from_offline: is_from_offline,
@@ -5281,6 +5527,7 @@ decode.success(Message(
       animation: animation,
       audio: audio,
       document: document,
+      live_photo: live_photo,
       paid_media: paid_media,
       photo: photo,
       sticker: sticker,
@@ -5415,6 +5662,7 @@ use link_preview_options <- decode.field("link_preview_options", decode.optional
 use animation <- decode.field("animation", decode.optional(animation_decoder()))
 use audio <- decode.field("audio", decode.optional(audio_decoder()))
 use document <- decode.field("document", decode.optional(document_decoder()))
+use live_photo <- decode.field("live_photo", decode.optional(live_photo_decoder()))
 use paid_media <- decode.field("paid_media", decode.optional(paid_media_info_decoder()))
 use photo <- decode.field("photo", decode.optional(decode.list(photo_size_decoder())))
 use sticker <- decode.field("sticker", decode.optional(sticker_decoder()))
@@ -5441,6 +5689,7 @@ decode.success(ExternalReplyInfo(
       animation: animation,
       audio: audio,
       document: document,
+      live_photo: live_photo,
       paid_media: paid_media,
       photo: photo,
       sticker: sticker,
@@ -5603,6 +5852,26 @@ decode.success(Document(
       file_size: file_size))
 }
 
+pub fn live_photo_decoder() -> decode.Decoder(LivePhoto) {
+use photo <- decode.field("photo", decode.optional(decode.list(photo_size_decoder())))
+use file_id <- decode.field("file_id", decode.string)
+use file_unique_id <- decode.field("file_unique_id", decode.string)
+use width <- decode.field("width", decode.int)
+use height <- decode.field("height", decode.int)
+use duration <- decode.field("duration", decode.int)
+use mime_type <- decode.field("mime_type", decode.optional(decode.string))
+use file_size <- decode.field("file_size", decode.optional(decode.int))
+decode.success(LivePhoto(
+      photo: photo,
+      file_id: file_id,
+      file_unique_id: file_unique_id,
+      width: width,
+      height: height,
+      duration: duration,
+      mime_type: mime_type,
+      file_size: file_size))
+}
+
 pub fn story_decoder() -> decode.Decoder(Story) {
 use chat <- decode.field("chat", chat_decoder())
 use id <- decode.field("id", decode.int)
@@ -5693,6 +5962,22 @@ decode.success(PaidMediaInfo(
       paid_media: paid_media))
 }
 
+pub fn paid_media_live_photo_decoder() -> decode.Decoder(PaidMediaLivePhoto) {
+use type_ <- decode.field("type_", decode.string)
+use live_photo <- decode.field("live_photo", live_photo_decoder())
+decode.success(PaidMediaLivePhoto(
+      type_: type_,
+      live_photo: live_photo))
+}
+
+pub fn paid_media_photo_decoder() -> decode.Decoder(PaidMediaPhoto) {
+use type_ <- decode.field("type_", decode.string)
+use photo <- decode.field("photo", decode.list(photo_size_decoder()))
+decode.success(PaidMediaPhoto(
+      type_: type_,
+      photo: photo))
+}
+
 pub fn paid_media_preview_decoder() -> decode.Decoder(PaidMediaPreview) {
 use type_ <- decode.field("type_", decode.string)
 use width <- decode.field("width", decode.optional(decode.int))
@@ -5703,14 +5988,6 @@ decode.success(PaidMediaPreview(
       width: width,
       height: height,
       duration: duration))
-}
-
-pub fn paid_media_photo_decoder() -> decode.Decoder(PaidMediaPhoto) {
-use type_ <- decode.field("type_", decode.string)
-use photo <- decode.field("photo", decode.list(photo_size_decoder()))
-decode.success(PaidMediaPhoto(
-      type_: type_,
-      photo: photo))
 }
 
 pub fn paid_media_video_decoder() -> decode.Decoder(PaidMediaVideo) {
@@ -5743,10 +6020,73 @@ decode.success(Dice(
       value: value))
 }
 
+pub fn poll_media_decoder() -> decode.Decoder(PollMedia) {
+use animation <- decode.field("animation", decode.optional(animation_decoder()))
+use audio <- decode.field("audio", decode.optional(audio_decoder()))
+use document <- decode.field("document", decode.optional(document_decoder()))
+use live_photo <- decode.field("live_photo", decode.optional(live_photo_decoder()))
+use location <- decode.field("location", decode.optional(location_decoder()))
+use photo <- decode.field("photo", decode.optional(decode.list(photo_size_decoder())))
+use sticker <- decode.field("sticker", decode.optional(sticker_decoder()))
+use venue <- decode.field("venue", decode.optional(venue_decoder()))
+use video <- decode.field("video", decode.optional(video_decoder()))
+decode.success(PollMedia(
+      animation: animation,
+      audio: audio,
+      document: document,
+      live_photo: live_photo,
+      location: location,
+      photo: photo,
+      sticker: sticker,
+      venue: venue,
+      video: video))
+}
+
+pub fn input_poll_media_decoder() -> decode.Decoder(InputPollMedia) {
+use persistent_id <- decode.field("persistent_id", decode.string)
+use text <- decode.field("text", decode.string)
+use text_entities <- decode.field("text_entities", decode.optional(decode.list(message_entity_decoder())))
+use media <- decode.field("media", decode.optional(poll_media_decoder()))
+use voter_count <- decode.field("voter_count", decode.int)
+use added_by_user <- decode.field("added_by_user", decode.optional(user_decoder()))
+use added_by_chat <- decode.field("added_by_chat", decode.optional(chat_decoder()))
+use addition_date <- decode.field("addition_date", decode.optional(decode.int))
+decode.success(InputPollMedia(
+      persistent_id: persistent_id,
+      text: text,
+      text_entities: text_entities,
+      media: media,
+      voter_count: voter_count,
+      added_by_user: added_by_user,
+      added_by_chat: added_by_chat,
+      addition_date: addition_date))
+}
+
+pub fn input_poll_option_media_decoder() -> decode.Decoder(InputPollOptionMedia) {
+use persistent_id <- decode.field("persistent_id", decode.string)
+use text <- decode.field("text", decode.string)
+use text_entities <- decode.field("text_entities", decode.optional(decode.list(message_entity_decoder())))
+use media <- decode.field("media", decode.optional(poll_media_decoder()))
+use voter_count <- decode.field("voter_count", decode.int)
+use added_by_user <- decode.field("added_by_user", decode.optional(user_decoder()))
+use added_by_chat <- decode.field("added_by_chat", decode.optional(chat_decoder()))
+use addition_date <- decode.field("addition_date", decode.optional(decode.int))
+decode.success(InputPollOptionMedia(
+      persistent_id: persistent_id,
+      text: text,
+      text_entities: text_entities,
+      media: media,
+      voter_count: voter_count,
+      added_by_user: added_by_user,
+      added_by_chat: added_by_chat,
+      addition_date: addition_date))
+}
+
 pub fn poll_option_decoder() -> decode.Decoder(PollOption) {
 use persistent_id <- decode.field("persistent_id", decode.string)
 use text <- decode.field("text", decode.string)
 use text_entities <- decode.field("text_entities", decode.optional(decode.list(message_entity_decoder())))
+use media <- decode.field("media", decode.optional(poll_media_decoder()))
 use voter_count <- decode.field("voter_count", decode.int)
 use added_by_user <- decode.field("added_by_user", decode.optional(user_decoder()))
 use added_by_chat <- decode.field("added_by_chat", decode.optional(chat_decoder()))
@@ -5755,6 +6095,7 @@ decode.success(PollOption(
       persistent_id: persistent_id,
       text: text,
       text_entities: text_entities,
+      media: media,
       voter_count: voter_count,
       added_by_user: added_by_user,
       added_by_chat: added_by_chat,
@@ -5765,10 +6106,12 @@ pub fn input_poll_option_decoder() -> decode.Decoder(InputPollOption) {
 use text <- decode.field("text", decode.string)
 use text_parse_mode <- decode.field("text_parse_mode", decode.optional(decode.string))
 use text_entities <- decode.field("text_entities", decode.optional(decode.list(message_entity_decoder())))
+use media <- decode.field("media", decode.optional(input_poll_option_media_decoder()))
 decode.success(InputPollOption(
       text: text,
       text_parse_mode: text_parse_mode,
-      text_entities: text_entities))
+      text_entities: text_entities,
+      media: media))
 }
 
 pub fn poll_answer_decoder() -> decode.Decoder(PollAnswer) {
@@ -5796,13 +6139,17 @@ use is_anonymous <- decode.field("is_anonymous", decode.bool)
 use type_ <- decode.field("type_", decode.string)
 use allows_multiple_answers <- decode.field("allows_multiple_answers", decode.bool)
 use allows_revoting <- decode.field("allows_revoting", decode.bool)
+use members_only <- decode.field("members_only", decode.bool)
+use country_codes <- decode.field("country_codes", decode.optional(decode.list(decode.string)))
 use correct_option_ids <- decode.field("correct_option_ids", decode.optional(decode.list(decode.int)))
 use explanation <- decode.field("explanation", decode.optional(decode.string))
 use explanation_entities <- decode.field("explanation_entities", decode.optional(decode.list(message_entity_decoder())))
+use explanation_media <- decode.field("explanation_media", decode.optional(poll_media_decoder()))
 use open_period <- decode.field("open_period", decode.optional(decode.int))
 use close_date <- decode.field("close_date", decode.optional(decode.int))
 use description <- decode.field("description", decode.optional(decode.string))
 use description_entities <- decode.field("description_entities", decode.optional(decode.list(message_entity_decoder())))
+use media <- decode.field("media", decode.optional(poll_media_decoder()))
 decode.success(Poll(
       id: id,
       question: question,
@@ -5814,13 +6161,17 @@ decode.success(Poll(
       type_: type_,
       allows_multiple_answers: allows_multiple_answers,
       allows_revoting: allows_revoting,
+      members_only: members_only,
+      country_codes: country_codes,
       correct_option_ids: correct_option_ids,
       explanation: explanation,
       explanation_entities: explanation_entities,
+      explanation_media: explanation_media,
       open_period: open_period,
       close_date: close_date,
       description: description,
-      description_entities: description_entities))
+      description_entities: description_entities,
+      media: media))
 }
 
 pub fn checklist_task_decoder() -> decode.Decoder(ChecklistTask) {
@@ -6787,6 +7138,7 @@ use can_send_voice_notes <- decode.field("can_send_voice_notes", decode.bool)
 use can_send_polls <- decode.field("can_send_polls", decode.bool)
 use can_send_other_messages <- decode.field("can_send_other_messages", decode.bool)
 use can_add_web_page_previews <- decode.field("can_add_web_page_previews", decode.bool)
+use can_react_to_messages <- decode.field("can_react_to_messages", decode.bool)
 use can_edit_tag <- decode.field("can_edit_tag", decode.bool)
 use can_change_info <- decode.field("can_change_info", decode.bool)
 use can_invite_users <- decode.field("can_invite_users", decode.bool)
@@ -6808,6 +7160,7 @@ decode.success(ChatMemberRestricted(
       can_send_polls: can_send_polls,
       can_send_other_messages: can_send_other_messages,
       can_add_web_page_previews: can_add_web_page_previews,
+      can_react_to_messages: can_react_to_messages,
       can_edit_tag: can_edit_tag,
       can_change_info: can_change_info,
       can_invite_users: can_invite_users,
@@ -6861,6 +7214,7 @@ use can_send_voice_notes <- decode.field("can_send_voice_notes", decode.optional
 use can_send_polls <- decode.field("can_send_polls", decode.optional(decode.bool))
 use can_send_other_messages <- decode.field("can_send_other_messages", decode.optional(decode.bool))
 use can_add_web_page_previews <- decode.field("can_add_web_page_previews", decode.optional(decode.bool))
+use can_react_to_messages <- decode.field("can_react_to_messages", decode.optional(decode.bool))
 use can_edit_tag <- decode.field("can_edit_tag", decode.optional(decode.bool))
 use can_change_info <- decode.field("can_change_info", decode.optional(decode.bool))
 use can_invite_users <- decode.field("can_invite_users", decode.optional(decode.bool))
@@ -6877,6 +7231,7 @@ decode.success(ChatPermissions(
       can_send_polls: can_send_polls,
       can_send_other_messages: can_send_other_messages,
       can_add_web_page_previews: can_add_web_page_previews,
+      can_react_to_messages: can_react_to_messages,
       can_edit_tag: can_edit_tag,
       can_change_info: can_change_info,
       can_invite_users: can_invite_users,
@@ -7398,6 +7753,14 @@ decode.success(OwnedGifts(
       next_offset: next_offset))
 }
 
+pub fn bot_access_settings_decoder() -> decode.Decoder(BotAccessSettings) {
+use is_access_restricted <- decode.field("is_access_restricted", decode.bool)
+use added_users <- decode.field("added_users", decode.optional(decode.list(user_decoder())))
+decode.success(BotAccessSettings(
+      is_access_restricted: is_access_restricted,
+      added_users: added_users))
+}
+
 pub fn accepted_gift_types_decoder() -> decode.Decoder(AcceptedGiftTypes) {
 use unlimited_gifts <- decode.field("unlimited_gifts", decode.bool)
 use limited_gifts <- decode.field("limited_gifts", decode.bool)
@@ -7662,6 +8025,12 @@ decode.success(SentWebAppMessage(
       inline_message_id: inline_message_id))
 }
 
+pub fn sent_guest_message_decoder() -> decode.Decoder(SentGuestMessage) {
+use inline_message_id <- decode.field("inline_message_id", decode.string)
+decode.success(SentGuestMessage(
+      inline_message_id: inline_message_id))
+}
+
 pub fn prepared_inline_message_decoder() -> decode.Decoder(PreparedInlineMessage) {
 use id <- decode.field("id", decode.string)
 use expiration_date <- decode.field("expiration_date", decode.int)
@@ -7682,56 +8051,6 @@ use retry_after <- decode.field("retry_after", decode.optional(decode.int))
 decode.success(ResponseParameters(
       migrate_to_chat_id: migrate_to_chat_id,
       retry_after: retry_after))
-}
-
-pub fn input_media_photo_decoder() -> decode.Decoder(InputMediaPhoto) {
-use type_ <- decode.field("type_", decode.string)
-use media <- decode.field("media", decode.string)
-use caption <- decode.field("caption", decode.optional(decode.string))
-use parse_mode <- decode.field("parse_mode", decode.optional(decode.string))
-use caption_entities <- decode.field("caption_entities", decode.optional(decode.list(message_entity_decoder())))
-use show_caption_above_media <- decode.field("show_caption_above_media", decode.optional(decode.bool))
-use has_spoiler <- decode.field("has_spoiler", decode.optional(decode.bool))
-decode.success(InputMediaPhoto(
-      type_: type_,
-      media: media,
-      caption: caption,
-      parse_mode: parse_mode,
-      caption_entities: caption_entities,
-      show_caption_above_media: show_caption_above_media,
-      has_spoiler: has_spoiler))
-}
-
-pub fn input_media_video_decoder() -> decode.Decoder(InputMediaVideo) {
-use type_ <- decode.field("type_", decode.string)
-use media <- decode.field("media", decode.string)
-use thumbnail <- decode.field("thumbnail", decode.optional(decode.string))
-use cover <- decode.field("cover", decode.optional(decode.string))
-use start_timestamp <- decode.field("start_timestamp", decode.optional(decode.int))
-use caption <- decode.field("caption", decode.optional(decode.string))
-use parse_mode <- decode.field("parse_mode", decode.optional(decode.string))
-use caption_entities <- decode.field("caption_entities", decode.optional(decode.list(message_entity_decoder())))
-use show_caption_above_media <- decode.field("show_caption_above_media", decode.optional(decode.bool))
-use width <- decode.field("width", decode.optional(decode.int))
-use height <- decode.field("height", decode.optional(decode.int))
-use duration <- decode.field("duration", decode.optional(decode.int))
-use supports_streaming <- decode.field("supports_streaming", decode.optional(decode.bool))
-use has_spoiler <- decode.field("has_spoiler", decode.optional(decode.bool))
-decode.success(InputMediaVideo(
-      type_: type_,
-      media: media,
-      thumbnail: thumbnail,
-      cover: cover,
-      start_timestamp: start_timestamp,
-      caption: caption,
-      parse_mode: parse_mode,
-      caption_entities: caption_entities,
-      show_caption_above_media: show_caption_above_media,
-      width: width,
-      height: height,
-      duration: duration,
-      supports_streaming: supports_streaming,
-      has_spoiler: has_spoiler))
 }
 
 pub fn input_media_animation_decoder() -> decode.Decoder(InputMediaAnimation) {
@@ -7798,6 +8117,130 @@ decode.success(InputMediaDocument(
       parse_mode: parse_mode,
       caption_entities: caption_entities,
       disable_content_type_detection: disable_content_type_detection))
+}
+
+pub fn input_media_live_photo_decoder() -> decode.Decoder(InputMediaLivePhoto) {
+use type_ <- decode.field("type_", decode.string)
+use media <- decode.field("media", decode.string)
+use photo <- decode.field("photo", decode.string)
+use caption <- decode.field("caption", decode.optional(decode.string))
+use parse_mode <- decode.field("parse_mode", decode.optional(decode.string))
+use caption_entities <- decode.field("caption_entities", decode.optional(decode.list(message_entity_decoder())))
+use show_caption_above_media <- decode.field("show_caption_above_media", decode.optional(decode.bool))
+use has_spoiler <- decode.field("has_spoiler", decode.optional(decode.bool))
+decode.success(InputMediaLivePhoto(
+      type_: type_,
+      media: media,
+      photo: photo,
+      caption: caption,
+      parse_mode: parse_mode,
+      caption_entities: caption_entities,
+      show_caption_above_media: show_caption_above_media,
+      has_spoiler: has_spoiler))
+}
+
+pub fn input_media_location_decoder() -> decode.Decoder(InputMediaLocation) {
+use type_ <- decode.field("type_", decode.string)
+use latitude <- decode.field("latitude", decode.float)
+use longitude <- decode.field("longitude", decode.float)
+use horizontal_accuracy <- decode.field("horizontal_accuracy", decode.optional(decode.float))
+decode.success(InputMediaLocation(
+      type_: type_,
+      latitude: latitude,
+      longitude: longitude,
+      horizontal_accuracy: horizontal_accuracy))
+}
+
+pub fn input_media_photo_decoder() -> decode.Decoder(InputMediaPhoto) {
+use type_ <- decode.field("type_", decode.string)
+use media <- decode.field("media", decode.string)
+use caption <- decode.field("caption", decode.optional(decode.string))
+use parse_mode <- decode.field("parse_mode", decode.optional(decode.string))
+use caption_entities <- decode.field("caption_entities", decode.optional(decode.list(message_entity_decoder())))
+use show_caption_above_media <- decode.field("show_caption_above_media", decode.optional(decode.bool))
+use has_spoiler <- decode.field("has_spoiler", decode.optional(decode.bool))
+decode.success(InputMediaPhoto(
+      type_: type_,
+      media: media,
+      caption: caption,
+      parse_mode: parse_mode,
+      caption_entities: caption_entities,
+      show_caption_above_media: show_caption_above_media,
+      has_spoiler: has_spoiler))
+}
+
+pub fn input_media_sticker_decoder() -> decode.Decoder(InputMediaSticker) {
+use type_ <- decode.field("type_", decode.string)
+use media <- decode.field("media", decode.string)
+use emoji <- decode.field("emoji", decode.optional(decode.string))
+decode.success(InputMediaSticker(
+      type_: type_,
+      media: media,
+      emoji: emoji))
+}
+
+pub fn input_media_venue_decoder() -> decode.Decoder(InputMediaVenue) {
+use type_ <- decode.field("type_", decode.string)
+use latitude <- decode.field("latitude", decode.float)
+use longitude <- decode.field("longitude", decode.float)
+use title <- decode.field("title", decode.string)
+use address <- decode.field("address", decode.string)
+use foursquare_id <- decode.field("foursquare_id", decode.optional(decode.string))
+use foursquare_type <- decode.field("foursquare_type", decode.optional(decode.string))
+use google_place_id <- decode.field("google_place_id", decode.optional(decode.string))
+use google_place_type <- decode.field("google_place_type", decode.optional(decode.string))
+decode.success(InputMediaVenue(
+      type_: type_,
+      latitude: latitude,
+      longitude: longitude,
+      title: title,
+      address: address,
+      foursquare_id: foursquare_id,
+      foursquare_type: foursquare_type,
+      google_place_id: google_place_id,
+      google_place_type: google_place_type))
+}
+
+pub fn input_media_video_decoder() -> decode.Decoder(InputMediaVideo) {
+use type_ <- decode.field("type_", decode.string)
+use media <- decode.field("media", decode.string)
+use thumbnail <- decode.field("thumbnail", decode.optional(decode.string))
+use cover <- decode.field("cover", decode.optional(decode.string))
+use start_timestamp <- decode.field("start_timestamp", decode.optional(decode.int))
+use caption <- decode.field("caption", decode.optional(decode.string))
+use parse_mode <- decode.field("parse_mode", decode.optional(decode.string))
+use caption_entities <- decode.field("caption_entities", decode.optional(decode.list(message_entity_decoder())))
+use show_caption_above_media <- decode.field("show_caption_above_media", decode.optional(decode.bool))
+use width <- decode.field("width", decode.optional(decode.int))
+use height <- decode.field("height", decode.optional(decode.int))
+use duration <- decode.field("duration", decode.optional(decode.int))
+use supports_streaming <- decode.field("supports_streaming", decode.optional(decode.bool))
+use has_spoiler <- decode.field("has_spoiler", decode.optional(decode.bool))
+decode.success(InputMediaVideo(
+      type_: type_,
+      media: media,
+      thumbnail: thumbnail,
+      cover: cover,
+      start_timestamp: start_timestamp,
+      caption: caption,
+      parse_mode: parse_mode,
+      caption_entities: caption_entities,
+      show_caption_above_media: show_caption_above_media,
+      width: width,
+      height: height,
+      duration: duration,
+      supports_streaming: supports_streaming,
+      has_spoiler: has_spoiler))
+}
+
+pub fn input_paid_media_live_photo_decoder() -> decode.Decoder(InputPaidMediaLivePhoto) {
+use type_ <- decode.field("type_", decode.string)
+use media <- decode.field("media", decode.string)
+use photo <- decode.field("photo", decode.string)
+decode.success(InputPaidMediaLivePhoto(
+      type_: type_,
+      media: media,
+      photo: photo))
 }
 
 pub fn input_paid_media_photo_decoder() -> decode.Decoder(InputPaidMediaPhoto) {
@@ -9107,6 +9550,7 @@ json_object_filter_nulls([
 #("business_message", json.nullable(update.business_message, encode_message)),
 #("edited_business_message", json.nullable(update.edited_business_message, encode_message)),
 #("deleted_business_messages", json.nullable(update.deleted_business_messages, encode_business_messages_deleted)),
+#("guest_message", json.nullable(update.guest_message, encode_message)),
 #("message_reaction", json.nullable(update.message_reaction, encode_message_reaction_updated)),
 #("message_reaction_count", json.nullable(update.message_reaction_count, encode_message_reaction_count_updated)),
 #("inline_query", json.nullable(update.inline_query, encode_inline_query)),
@@ -9152,6 +9596,7 @@ json_object_filter_nulls([
 #("added_to_attachment_menu", json.nullable(user.added_to_attachment_menu, json.bool)),
 #("can_join_groups", json.nullable(user.can_join_groups, json.bool)),
 #("can_read_all_group_messages", json.nullable(user.can_read_all_group_messages, json.bool)),
+#("supports_guest_queries", json.nullable(user.supports_guest_queries, json.bool)),
 #("supports_inline_queries", json.nullable(user.supports_inline_queries, json.bool)),
 #("can_connect_to_business", json.nullable(user.can_connect_to_business, json.bool)),
 #("has_main_web_app", json.nullable(user.has_main_web_app, json.bool)),
@@ -9241,6 +9686,7 @@ json_object_filter_nulls([
 #("sender_business_bot", json.nullable(message.sender_business_bot, encode_user)),
 #("sender_tag", json.nullable(message.sender_tag, json.string)),
 #("date", json.int(message.date)),
+#("guest_query_id", json.nullable(message.guest_query_id, json.string)),
 #("business_connection_id", json.nullable(message.business_connection_id, json.string)),
 #("chat", encode_chat(message.chat)),
 #("forward_origin", json.nullable(message.forward_origin, encode_message_origin)),
@@ -9253,6 +9699,8 @@ json_object_filter_nulls([
 #("reply_to_checklist_task_id", json.nullable(message.reply_to_checklist_task_id, json.int)),
 #("reply_to_poll_option_id", json.nullable(message.reply_to_poll_option_id, json.string)),
 #("via_bot", json.nullable(message.via_bot, encode_user)),
+#("guest_bot_caller_user", json.nullable(message.guest_bot_caller_user, encode_user)),
+#("guest_bot_caller_chat", json.nullable(message.guest_bot_caller_chat, encode_chat)),
 #("edit_date", json.nullable(message.edit_date, json.int)),
 #("has_protected_content", json.nullable(message.has_protected_content, json.bool)),
 #("is_from_offline", json.nullable(message.is_from_offline, json.bool)),
@@ -9268,6 +9716,7 @@ json_object_filter_nulls([
 #("animation", json.nullable(message.animation, encode_animation)),
 #("audio", json.nullable(message.audio, encode_audio)),
 #("document", json.nullable(message.document, encode_document)),
+#("live_photo", json.nullable(message.live_photo, encode_live_photo)),
 #("paid_media", json.nullable(message.paid_media, encode_paid_media_info)),
 #("photo", json.nullable(message.photo, json.array(_, encode_photo_size))),
 #("sticker", json.nullable(message.sticker, encode_sticker)),
@@ -9391,6 +9840,7 @@ json_object_filter_nulls([
 #("animation", json.nullable(external_reply_info.animation, encode_animation)),
 #("audio", json.nullable(external_reply_info.audio, encode_audio)),
 #("document", json.nullable(external_reply_info.document, encode_document)),
+#("live_photo", json.nullable(external_reply_info.live_photo, encode_live_photo)),
 #("paid_media", json.nullable(external_reply_info.paid_media, encode_paid_media_info)),
 #("photo", json.nullable(external_reply_info.photo, json.array(_, encode_photo_size))),
 #("sticker", json.nullable(external_reply_info.sticker, encode_sticker)),
@@ -9510,6 +9960,19 @@ json_object_filter_nulls([
   ])
 }
 
+pub fn encode_live_photo(live_photo: LivePhoto) -> Json {
+json_object_filter_nulls([
+#("photo", json.nullable(live_photo.photo, json.array(_, encode_photo_size))),
+#("file_id", json.string(live_photo.file_id)),
+#("file_unique_id", json.string(live_photo.file_unique_id)),
+#("width", json.int(live_photo.width)),
+#("height", json.int(live_photo.height)),
+#("duration", json.int(live_photo.duration)),
+#("mime_type", json.nullable(live_photo.mime_type, json.string)),
+#("file_size", json.nullable(live_photo.file_size, json.int)),
+  ])
+}
+
 pub fn encode_story(story: Story) -> Json {
 json_object_filter_nulls([
 #("chat", encode_chat(story.chat)),
@@ -9573,12 +10036,10 @@ json_object_filter_nulls([
   ])
 }
 
-pub fn encode_paid_media_preview(paid_media_preview: PaidMediaPreview) -> Json {
+pub fn encode_paid_media_live_photo(paid_media_live_photo: PaidMediaLivePhoto) -> Json {
 json_object_filter_nulls([
-#("type", json.string(paid_media_preview.type_)),
-#("width", json.nullable(paid_media_preview.width, json.int)),
-#("height", json.nullable(paid_media_preview.height, json.int)),
-#("duration", json.nullable(paid_media_preview.duration, json.int)),
+#("type", json.string(paid_media_live_photo.type_)),
+#("live_photo", encode_live_photo(paid_media_live_photo.live_photo)),
   ])
 }
 
@@ -9586,6 +10047,15 @@ pub fn encode_paid_media_photo(paid_media_photo: PaidMediaPhoto) -> Json {
 json_object_filter_nulls([
 #("type", json.string(paid_media_photo.type_)),
 #("photo", json.array(_, encode_photo_size)(paid_media_photo.photo)),
+  ])
+}
+
+pub fn encode_paid_media_preview(paid_media_preview: PaidMediaPreview) -> Json {
+json_object_filter_nulls([
+#("type", json.string(paid_media_preview.type_)),
+#("width", json.nullable(paid_media_preview.width, json.int)),
+#("height", json.nullable(paid_media_preview.height, json.int)),
+#("duration", json.nullable(paid_media_preview.duration, json.int)),
   ])
 }
 
@@ -9613,11 +10083,52 @@ json_object_filter_nulls([
   ])
 }
 
+pub fn encode_poll_media(poll_media: PollMedia) -> Json {
+json_object_filter_nulls([
+#("animation", json.nullable(poll_media.animation, encode_animation)),
+#("audio", json.nullable(poll_media.audio, encode_audio)),
+#("document", json.nullable(poll_media.document, encode_document)),
+#("live_photo", json.nullable(poll_media.live_photo, encode_live_photo)),
+#("location", json.nullable(poll_media.location, encode_location)),
+#("photo", json.nullable(poll_media.photo, json.array(_, encode_photo_size))),
+#("sticker", json.nullable(poll_media.sticker, encode_sticker)),
+#("venue", json.nullable(poll_media.venue, encode_venue)),
+#("video", json.nullable(poll_media.video, encode_video)),
+  ])
+}
+
+pub fn encode_input_poll_media(input_poll_media: InputPollMedia) -> Json {
+json_object_filter_nulls([
+#("persistent_id", json.string(input_poll_media.persistent_id)),
+#("text", json.string(input_poll_media.text)),
+#("text_entities", json.nullable(input_poll_media.text_entities, json.array(_, encode_message_entity))),
+#("media", json.nullable(input_poll_media.media, encode_poll_media)),
+#("voter_count", json.int(input_poll_media.voter_count)),
+#("added_by_user", json.nullable(input_poll_media.added_by_user, encode_user)),
+#("added_by_chat", json.nullable(input_poll_media.added_by_chat, encode_chat)),
+#("addition_date", json.nullable(input_poll_media.addition_date, json.int)),
+  ])
+}
+
+pub fn encode_input_poll_option_media(input_poll_option_media: InputPollOptionMedia) -> Json {
+json_object_filter_nulls([
+#("persistent_id", json.string(input_poll_option_media.persistent_id)),
+#("text", json.string(input_poll_option_media.text)),
+#("text_entities", json.nullable(input_poll_option_media.text_entities, json.array(_, encode_message_entity))),
+#("media", json.nullable(input_poll_option_media.media, encode_poll_media)),
+#("voter_count", json.int(input_poll_option_media.voter_count)),
+#("added_by_user", json.nullable(input_poll_option_media.added_by_user, encode_user)),
+#("added_by_chat", json.nullable(input_poll_option_media.added_by_chat, encode_chat)),
+#("addition_date", json.nullable(input_poll_option_media.addition_date, json.int)),
+  ])
+}
+
 pub fn encode_poll_option(poll_option: PollOption) -> Json {
 json_object_filter_nulls([
 #("persistent_id", json.string(poll_option.persistent_id)),
 #("text", json.string(poll_option.text)),
 #("text_entities", json.nullable(poll_option.text_entities, json.array(_, encode_message_entity))),
+#("media", json.nullable(poll_option.media, encode_poll_media)),
 #("voter_count", json.int(poll_option.voter_count)),
 #("added_by_user", json.nullable(poll_option.added_by_user, encode_user)),
 #("added_by_chat", json.nullable(poll_option.added_by_chat, encode_chat)),
@@ -9630,6 +10141,7 @@ json_object_filter_nulls([
 #("text", json.string(input_poll_option.text)),
 #("text_parse_mode", json.nullable(input_poll_option.text_parse_mode, json.string)),
 #("text_entities", json.nullable(input_poll_option.text_entities, json.array(_, encode_message_entity))),
+#("media", json.nullable(input_poll_option.media, encode_input_poll_option_media)),
   ])
 }
 
@@ -9655,13 +10167,17 @@ json_object_filter_nulls([
 #("type", json.string(poll.type_)),
 #("allows_multiple_answers", json.bool(poll.allows_multiple_answers)),
 #("allows_revoting", json.bool(poll.allows_revoting)),
+#("members_only", json.bool(poll.members_only)),
+#("country_codes", json.nullable(poll.country_codes, json.array(_, json.string))),
 #("correct_option_ids", json.nullable(poll.correct_option_ids, json.array(_, json.int))),
 #("explanation", json.nullable(poll.explanation, json.string)),
 #("explanation_entities", json.nullable(poll.explanation_entities, json.array(_, encode_message_entity))),
+#("explanation_media", json.nullable(poll.explanation_media, encode_poll_media)),
 #("open_period", json.nullable(poll.open_period, json.int)),
 #("close_date", json.nullable(poll.close_date, json.int)),
 #("description", json.nullable(poll.description, json.string)),
 #("description_entities", json.nullable(poll.description_entities, json.array(_, encode_message_entity))),
+#("media", json.nullable(poll.media, encode_poll_media)),
   ])
 }
 
@@ -10385,6 +10901,7 @@ json_object_filter_nulls([
 #("can_send_polls", json.bool(chat_member_restricted.can_send_polls)),
 #("can_send_other_messages", json.bool(chat_member_restricted.can_send_other_messages)),
 #("can_add_web_page_previews", json.bool(chat_member_restricted.can_add_web_page_previews)),
+#("can_react_to_messages", json.bool(chat_member_restricted.can_react_to_messages)),
 #("can_edit_tag", json.bool(chat_member_restricted.can_edit_tag)),
 #("can_change_info", json.bool(chat_member_restricted.can_change_info)),
 #("can_invite_users", json.bool(chat_member_restricted.can_invite_users)),
@@ -10432,6 +10949,7 @@ json_object_filter_nulls([
 #("can_send_polls", json.nullable(chat_permissions.can_send_polls, json.bool)),
 #("can_send_other_messages", json.nullable(chat_permissions.can_send_other_messages, json.bool)),
 #("can_add_web_page_previews", json.nullable(chat_permissions.can_add_web_page_previews, json.bool)),
+#("can_react_to_messages", json.nullable(chat_permissions.can_react_to_messages, json.bool)),
 #("can_edit_tag", json.nullable(chat_permissions.can_edit_tag, json.bool)),
 #("can_change_info", json.nullable(chat_permissions.can_change_info, json.bool)),
 #("can_invite_users", json.nullable(chat_permissions.can_invite_users, json.bool)),
@@ -10811,6 +11329,13 @@ json_object_filter_nulls([
   ])
 }
 
+pub fn encode_bot_access_settings(bot_access_settings: BotAccessSettings) -> Json {
+json_object_filter_nulls([
+#("is_access_restricted", json.bool(bot_access_settings.is_access_restricted)),
+#("added_users", json.nullable(bot_access_settings.added_users, json.array(_, encode_user))),
+  ])
+}
+
 pub fn encode_accepted_gift_types(accepted_gift_types: AcceptedGiftTypes) -> Json {
 json_object_filter_nulls([
 #("unlimited_gifts", json.bool(accepted_gift_types.unlimited_gifts)),
@@ -11030,6 +11555,12 @@ json_object_filter_nulls([
   ])
 }
 
+pub fn encode_sent_guest_message(sent_guest_message: SentGuestMessage) -> Json {
+json_object_filter_nulls([
+#("inline_message_id", json.string(sent_guest_message.inline_message_id)),
+  ])
+}
+
 pub fn encode_prepared_inline_message(prepared_inline_message: PreparedInlineMessage) -> Json {
 json_object_filter_nulls([
 #("id", json.string(prepared_inline_message.id)),
@@ -11047,37 +11578,6 @@ pub fn encode_response_parameters(response_parameters: ResponseParameters) -> Js
 json_object_filter_nulls([
 #("migrate_to_chat_id", json.nullable(response_parameters.migrate_to_chat_id, json.int)),
 #("retry_after", json.nullable(response_parameters.retry_after, json.int)),
-  ])
-}
-
-pub fn encode_input_media_photo(input_media_photo: InputMediaPhoto) -> Json {
-json_object_filter_nulls([
-#("type", json.string(input_media_photo.type_)),
-#("media", json.string(input_media_photo.media)),
-#("caption", json.nullable(input_media_photo.caption, json.string)),
-#("parse_mode", json.nullable(input_media_photo.parse_mode, json.string)),
-#("caption_entities", json.nullable(input_media_photo.caption_entities, json.array(_, encode_message_entity))),
-#("show_caption_above_media", json.nullable(input_media_photo.show_caption_above_media, json.bool)),
-#("has_spoiler", json.nullable(input_media_photo.has_spoiler, json.bool)),
-  ])
-}
-
-pub fn encode_input_media_video(input_media_video: InputMediaVideo) -> Json {
-json_object_filter_nulls([
-#("type", json.string(input_media_video.type_)),
-#("media", json.string(input_media_video.media)),
-#("thumbnail", json.nullable(input_media_video.thumbnail, json.string)),
-#("cover", json.nullable(input_media_video.cover, json.string)),
-#("start_timestamp", json.nullable(input_media_video.start_timestamp, json.int)),
-#("caption", json.nullable(input_media_video.caption, json.string)),
-#("parse_mode", json.nullable(input_media_video.parse_mode, json.string)),
-#("caption_entities", json.nullable(input_media_video.caption_entities, json.array(_, encode_message_entity))),
-#("show_caption_above_media", json.nullable(input_media_video.show_caption_above_media, json.bool)),
-#("width", json.nullable(input_media_video.width, json.int)),
-#("height", json.nullable(input_media_video.height, json.int)),
-#("duration", json.nullable(input_media_video.duration, json.int)),
-#("supports_streaming", json.nullable(input_media_video.supports_streaming, json.bool)),
-#("has_spoiler", json.nullable(input_media_video.has_spoiler, json.bool)),
   ])
 }
 
@@ -11120,6 +11620,89 @@ json_object_filter_nulls([
 #("parse_mode", json.nullable(input_media_document.parse_mode, json.string)),
 #("caption_entities", json.nullable(input_media_document.caption_entities, json.array(_, encode_message_entity))),
 #("disable_content_type_detection", json.nullable(input_media_document.disable_content_type_detection, json.bool)),
+  ])
+}
+
+pub fn encode_input_media_live_photo(input_media_live_photo: InputMediaLivePhoto) -> Json {
+json_object_filter_nulls([
+#("type", json.string(input_media_live_photo.type_)),
+#("media", json.string(input_media_live_photo.media)),
+#("photo", json.string(input_media_live_photo.photo)),
+#("caption", json.nullable(input_media_live_photo.caption, json.string)),
+#("parse_mode", json.nullable(input_media_live_photo.parse_mode, json.string)),
+#("caption_entities", json.nullable(input_media_live_photo.caption_entities, json.array(_, encode_message_entity))),
+#("show_caption_above_media", json.nullable(input_media_live_photo.show_caption_above_media, json.bool)),
+#("has_spoiler", json.nullable(input_media_live_photo.has_spoiler, json.bool)),
+  ])
+}
+
+pub fn encode_input_media_location(input_media_location: InputMediaLocation) -> Json {
+json_object_filter_nulls([
+#("type", json.string(input_media_location.type_)),
+#("latitude", json.float(input_media_location.latitude)),
+#("longitude", json.float(input_media_location.longitude)),
+#("horizontal_accuracy", json.nullable(input_media_location.horizontal_accuracy, json.float)),
+  ])
+}
+
+pub fn encode_input_media_photo(input_media_photo: InputMediaPhoto) -> Json {
+json_object_filter_nulls([
+#("type", json.string(input_media_photo.type_)),
+#("media", json.string(input_media_photo.media)),
+#("caption", json.nullable(input_media_photo.caption, json.string)),
+#("parse_mode", json.nullable(input_media_photo.parse_mode, json.string)),
+#("caption_entities", json.nullable(input_media_photo.caption_entities, json.array(_, encode_message_entity))),
+#("show_caption_above_media", json.nullable(input_media_photo.show_caption_above_media, json.bool)),
+#("has_spoiler", json.nullable(input_media_photo.has_spoiler, json.bool)),
+  ])
+}
+
+pub fn encode_input_media_sticker(input_media_sticker: InputMediaSticker) -> Json {
+json_object_filter_nulls([
+#("type", json.string(input_media_sticker.type_)),
+#("media", json.string(input_media_sticker.media)),
+#("emoji", json.nullable(input_media_sticker.emoji, json.string)),
+  ])
+}
+
+pub fn encode_input_media_venue(input_media_venue: InputMediaVenue) -> Json {
+json_object_filter_nulls([
+#("type", json.string(input_media_venue.type_)),
+#("latitude", json.float(input_media_venue.latitude)),
+#("longitude", json.float(input_media_venue.longitude)),
+#("title", json.string(input_media_venue.title)),
+#("address", json.string(input_media_venue.address)),
+#("foursquare_id", json.nullable(input_media_venue.foursquare_id, json.string)),
+#("foursquare_type", json.nullable(input_media_venue.foursquare_type, json.string)),
+#("google_place_id", json.nullable(input_media_venue.google_place_id, json.string)),
+#("google_place_type", json.nullable(input_media_venue.google_place_type, json.string)),
+  ])
+}
+
+pub fn encode_input_media_video(input_media_video: InputMediaVideo) -> Json {
+json_object_filter_nulls([
+#("type", json.string(input_media_video.type_)),
+#("media", json.string(input_media_video.media)),
+#("thumbnail", json.nullable(input_media_video.thumbnail, json.string)),
+#("cover", json.nullable(input_media_video.cover, json.string)),
+#("start_timestamp", json.nullable(input_media_video.start_timestamp, json.int)),
+#("caption", json.nullable(input_media_video.caption, json.string)),
+#("parse_mode", json.nullable(input_media_video.parse_mode, json.string)),
+#("caption_entities", json.nullable(input_media_video.caption_entities, json.array(_, encode_message_entity))),
+#("show_caption_above_media", json.nullable(input_media_video.show_caption_above_media, json.bool)),
+#("width", json.nullable(input_media_video.width, json.int)),
+#("height", json.nullable(input_media_video.height, json.int)),
+#("duration", json.nullable(input_media_video.duration, json.int)),
+#("supports_streaming", json.nullable(input_media_video.supports_streaming, json.bool)),
+#("has_spoiler", json.nullable(input_media_video.has_spoiler, json.bool)),
+  ])
+}
+
+pub fn encode_input_paid_media_live_photo(input_paid_media_live_photo: InputPaidMediaLivePhoto) -> Json {
+json_object_filter_nulls([
+#("type", json.string(input_paid_media_live_photo.type_)),
+#("media", json.string(input_paid_media_live_photo.media)),
+#("photo", json.string(input_paid_media_live_photo.photo)),
   ])
 }
 
@@ -12046,13 +12629,17 @@ decode.success(MessageOriginChannelMessageOrigin(value))
 pub fn paid_media_decoder() -> decode.Decoder(PaidMedia) {
   use variant <- decode.field("type", decode.string)
   case variant {
-"paid_media_preview" -> {
-use value <- decode.then(paid_media_preview_decoder())
-decode.success(PaidMediaPreviewPaidMedia(value))
+"paid_media_live_photo" -> {
+use value <- decode.then(paid_media_live_photo_decoder())
+decode.success(PaidMediaLivePhotoPaidMedia(value))
 }
 "paid_media_photo" -> {
 use value <- decode.then(paid_media_photo_decoder())
 decode.success(PaidMediaPhotoPaidMedia(value))
+}
+"paid_media_preview" -> {
+use value <- decode.then(paid_media_preview_decoder())
+decode.success(PaidMediaPreviewPaidMedia(value))
 }
 "paid_media_video" -> {
 use value <- decode.then(paid_media_video_decoder())
@@ -12234,13 +12821,17 @@ pub fn input_media_decoder() -> decode.Decoder(InputMedia) {
 use value <- decode.then(input_media_animation_decoder())
 decode.success(InputMediaAnimationInputMedia(value))
 }
+"input_media_audio" -> {
+use value <- decode.then(input_media_audio_decoder())
+decode.success(InputMediaAudioInputMedia(value))
+}
 "input_media_document" -> {
 use value <- decode.then(input_media_document_decoder())
 decode.success(InputMediaDocumentInputMedia(value))
 }
-"input_media_audio" -> {
-use value <- decode.then(input_media_audio_decoder())
-decode.success(InputMediaAudioInputMedia(value))
+"input_media_live_photo" -> {
+use value <- decode.then(input_media_live_photo_decoder())
+decode.success(InputMediaLivePhotoInputMedia(value))
 }
 "input_media_photo" -> {
 use value <- decode.then(input_media_photo_decoder())
@@ -12257,6 +12848,10 @@ decode.success(InputMediaVideoInputMedia(value))
 pub fn input_paid_media_decoder() -> decode.Decoder(InputPaidMedia) {
   use variant <- decode.field("type", decode.string)
   case variant {
+"input_paid_media_live_photo" -> {
+use value <- decode.then(input_paid_media_live_photo_decoder())
+decode.success(InputPaidMediaLivePhotoInputPaidMedia(value))
+}
 "input_paid_media_photo" -> {
 use value <- decode.then(input_paid_media_photo_decoder())
 decode.success(InputPaidMediaPhotoInputPaidMedia(value))
@@ -12519,9 +13114,11 @@ MessageOriginChannelMessageOrigin(inner_value) -> encode_message_origin_channel(
 
 pub fn encode_paid_media(value: PaidMedia) -> Json {
   case value {
-PaidMediaPreviewPaidMedia(inner_value) -> encode_paid_media_preview(inner_value)
+PaidMediaLivePhotoPaidMedia(inner_value) -> encode_paid_media_live_photo(inner_value)
 
 PaidMediaPhotoPaidMedia(inner_value) -> encode_paid_media_photo(inner_value)
+
+PaidMediaPreviewPaidMedia(inner_value) -> encode_paid_media_preview(inner_value)
 
 PaidMediaVideoPaidMedia(inner_value) -> encode_paid_media_video(inner_value)
 
@@ -12625,9 +13222,11 @@ pub fn encode_input_media(value: InputMedia) -> Json {
   case value {
 InputMediaAnimationInputMedia(inner_value) -> encode_input_media_animation(inner_value)
 
+InputMediaAudioInputMedia(inner_value) -> encode_input_media_audio(inner_value)
+
 InputMediaDocumentInputMedia(inner_value) -> encode_input_media_document(inner_value)
 
-InputMediaAudioInputMedia(inner_value) -> encode_input_media_audio(inner_value)
+InputMediaLivePhotoInputMedia(inner_value) -> encode_input_media_live_photo(inner_value)
 
 InputMediaPhotoInputMedia(inner_value) -> encode_input_media_photo(inner_value)
 
@@ -12638,6 +13237,8 @@ InputMediaVideoInputMedia(inner_value) -> encode_input_media_video(inner_value)
 
 pub fn encode_input_paid_media(value: InputPaidMedia) -> Json {
   case value {
+InputPaidMediaLivePhotoInputPaidMedia(inner_value) -> encode_input_paid_media_live_photo(inner_value)
+
 InputPaidMediaPhotoInputPaidMedia(inner_value) -> encode_input_paid_media_photo(inner_value)
 
 InputPaidMediaVideoInputPaidMedia(inner_value) -> encode_input_paid_media_video(inner_value)
